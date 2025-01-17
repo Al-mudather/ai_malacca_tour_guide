@@ -1,5 +1,7 @@
+import 'package:ai_malacca_tour_guide/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import '../../../models/place_itinerary_model.dart';
+import 'package:get/get.dart';
 
 class PlaceCard extends StatelessWidget {
   final PlaceItineraryModel place;
@@ -8,6 +10,16 @@ class PlaceCard extends StatelessWidget {
     Key? key,
     required this.place,
   }) : super(key: key);
+
+  void _navigateToMap(BuildContext context) {
+    Get.toNamed(
+      Routes.MAP,
+      arguments: {
+        'latitude': place.latitude,
+        'longitude': place.longitude,
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,6 +145,18 @@ class PlaceCard extends StatelessWidget {
               ),
             ),
           ),
+
+          ElevatedButton.icon(
+            onPressed: () => _navigateToMap(context),
+            icon: const Icon(Icons.map, size: 18),
+            label: const Text('View on Map'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            ),
+          ),
+          const SizedBox(height: 8),
         ],
       ),
     );

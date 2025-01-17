@@ -11,6 +11,7 @@ import 'package:ai_malacca_tour_guide/features/itinerary/bindings/itinerary_bind
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ai_malacca_tour_guide/features/debug/debug_menu.dart';
+import 'package:ai_malacca_tour_guide/features/map/view/map_screen.dart';
 
 class AppPages {
   AppPages._();
@@ -49,6 +50,13 @@ class AppPages {
       page: () => const ItineraryDetailsView(),
       binding: ItineraryBinding(),
     ),
+    GetPage(
+      name: Routes.MAP,
+      page: () => MapScreen(
+        destinationLatitude: Get.arguments['latitude'] as double,
+        destinationLongitude: Get.arguments['longitude'] as double,
+      ),
+    ),
     if (kDebugMode)
       GetPage(
         name: '/debug',
@@ -66,4 +74,5 @@ abstract class Routes {
   static const CHAT = '/chat';
   static const ITINERARY = '/itinerary';
   static const ITINERARY_DETAILS = '/itinerary/details';
+  static const MAP = '/map';
 }
