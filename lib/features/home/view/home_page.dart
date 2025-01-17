@@ -1,12 +1,12 @@
-import 'package:ai_malacca_tour_guide/features/home/widgets/category_section.dart';
-import 'package:ai_malacca_tour_guide/features/home/widgets/featured_trip_card.dart';
-import 'package:ai_malacca_tour_guide/features/home/widgets/popular_trips_section.dart';
-import 'package:ai_malacca_tour_guide/features/home/widgets/search_bar_widget.dart';
-import 'package:ai_malacca_tour_guide/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ai_malacca_tour_guide/routes/app_pages.dart';
 import 'package:ai_malacca_tour_guide/features/debug/debug_menu.dart';
+import 'package:ai_malacca_tour_guide/features/home/widgets/location_header.dart';
+import 'package:ai_malacca_tour_guide/features/home/widgets/welcome_card.dart';
+import 'package:ai_malacca_tour_guide/features/home/widgets/home_bottom_nav.dart';
+import 'package:ai_malacca_tour_guide/features/account/view/account_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -23,21 +23,19 @@ class _HomeViewState extends State<HomeView> {
       _selectedIndex = index;
     });
 
-    // Navigate based on selected index
     switch (index) {
-      case 0:
-        // Already on home
+      case 0: // Home
         break;
-      case 1:
+      case 1: // Chat/New Itinerary
         Get.toNamed(Routes.CHAT);
         break;
-      case 2:
+      case 2: // Itinerary List
         Get.toNamed(Routes.ITINERARY);
         break;
-      case 3:
-        // Show debug menu in debug mode only
-        // if (kDebugMode) {
-        // }
+      case 3: // Account
+        Get.to(() => const AccountView());
+        break;
+      case 4: // Debug Menu
         Get.to(() => const DebugMenu());
         break;
     }
@@ -46,75 +44,35 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Roote Guides!',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Text(
-                          'Explore destinations you want!',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.notifications_outlined),
-                      onPressed: () {},
-                    ),
-                  ],
-                ),
+      body: Column(
+        children: [
+          // Background Image with Location Header
+          Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/default_background.jpg'),
+                fit: BoxFit.cover,
               ),
-              const SearchBarWidget(),
-              const CategorySection(),
-              const FeaturedTripCard(),
-              const PopularTripsSection(),
-            ],
+            ),
+            child: const SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: LocationHeader(),
+              ),
+            ),
           ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map),
-            label: 'Itinerary',
-          ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.person),
-          //   label: 'Profile',
-          // ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bug_report),
-            label: 'Debug',
+
+          // Welcome Card
+          const Expanded(
+            child: WelcomeCard(),
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+      ),
+      bottomNavigationBar: HomeBottomNav(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
