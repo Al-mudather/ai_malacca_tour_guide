@@ -1,3 +1,4 @@
+import 'package:ai_malacca_tour_guide/config/app_colors.dart';
 import 'package:ai_malacca_tour_guide/database/crud/users_crud.dart';
 import 'package:ai_malacca_tour_guide/routes/app_pages.dart';
 import 'package:flutter/material.dart';
@@ -11,25 +12,10 @@ class WelcomeView extends StatefulWidget {
 }
 
 class _WelcomeViewState extends State<WelcomeView> {
-  final _usersCRUD = UsersCRUD();
-
   @override
   void initState() {
     super.initState();
-    // _printAllUsers();
   }
-
-  // Future<void> _printAllUsers() async {
-  //   try {
-  //     final users = await _usersCRUD.getAllUsers();
-  //     print('All Users in Database:');
-  //     for (final user in users) {
-  //       print('ID: ${user.id}, Name: ${user.name}, Email: ${user.email}');
-  //     }
-  //   } catch (e) {
-  //     print('Error fetching users: $e');
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +46,13 @@ class _WelcomeViewState extends State<WelcomeView> {
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 15.0,
+                            color: Colors.black54,
+                            offset: Offset(0, 0),
+                          ),
+                        ],
                       ),
                       child: const Row(
                         children: [
@@ -74,6 +67,13 @@ class _WelcomeViewState extends State<WelcomeView> {
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 15.0,
+                                  color: Colors.black54,
+                                  offset: Offset(0, 0),
+                                ),
+                              ],
                             ),
                           ),
                         ],
@@ -89,6 +89,13 @@ class _WelcomeViewState extends State<WelcomeView> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     height: 1.2,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 15.0,
+                        color: Colors.black54,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -96,8 +103,15 @@ class _WelcomeViewState extends State<WelcomeView> {
                   'Effortlessly create personalized itineraries tailored to your preferences. Let our intelligent assistant handle the details, so you can focus on exploring the world.',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
-                    height: 1.5,
+                    color: AppColors.secondary,
+                    height: 1.7,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 15.0,
+                        color: Colors.black54,
+                        offset: Offset(0, 0),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 48),

@@ -38,9 +38,6 @@ class AuthController extends GetxController {
         return false;
       }
     } catch (e) {
-      print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww');
-      print(e);
-      print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww');
       error.value = 'An error occurred during sign in';
       return false;
     } finally {
@@ -88,6 +85,7 @@ class AuthController extends GetxController {
 
   void signOut() {
     currentUser.value = null;
+    appStorage.remove(AppConstants.userKey);
     Get.offAllNamed(Routes.WELCOME);
   }
 }
