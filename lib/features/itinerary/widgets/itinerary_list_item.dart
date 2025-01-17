@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../../models/itinerary_model.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/itinerary_controller.dart';
-import 'itinerary_card_content.dart';
 
 class ItineraryListItem extends StatelessWidget {
   final ItineraryModel itinerary;
@@ -18,7 +17,8 @@ class ItineraryListItem extends StatelessWidget {
       AlertDialog(
         title: const Text('Delete Itinerary'),
         content: const Text(
-            'Are you sure you want to delete this itinerary? This action cannot be undone.'),
+          'Are you sure you want to delete this itinerary? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -39,59 +39,185 @@ class ItineraryListItem extends StatelessWidget {
     );
   }
 
+  void _viewDetails() {
+    Get.toNamed(
+      Routes.ITINERARY_DETAILS,
+      arguments: {'itineraryId': itinerary.id},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      clipBehavior: Clip.antiAlias,
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: InkWell(
-        onTap: () => Get.toNamed(
-          Routes.ITINERARY_DETAILS,
-          arguments: {'itineraryId': itinerary.id},
-        ),
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Cover Image with Gradient Overlay
             Stack(
               children: [
-                _buildCoverImage(),
+                Container(
+                  height: 160,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    image: const DecorationImage(
+                      image: NetworkImage(
+                        'https://images.unsplash.com/photo-1527838832700-5059252407fa?q=80&w=1000',
+                      ),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.7),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                // Title
                 Positioned(
-                  top: 8,
-                  right: 8,
-                  child: IconButton(
-                    onPressed: _handleDelete,
-                    icon: const Icon(Icons.delete),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.9),
-                      foregroundColor: Colors.red,
+                  bottom: 16,
+                  left: 16,
+                  right: 16,
+                  child: Text(
+                    itinerary.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
               ],
             ),
-            ItineraryCardContent(itinerary: itinerary),
+            // Content Section
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Stats Row
+                  Row(
+                    children: [
+                      _buildStat(
+                        context,
+                        Icons.place_rounded,
+                        '${itinerary.id} Places',
+                        Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 24),
+                      _buildStat(
+                        context,
+                        Icons.calendar_today_rounded,
+                        'Today',
+                        Theme.of(context).colorScheme.secondary,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Description
+                  Text(
+                    'Explore the historic city of Malacca',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.8),
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _viewDetails,
+                          icon: const Icon(
+                            Icons.visibility_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          label: const Text('View Details'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: _handleDelete,
+                        icon: const Icon(Icons.delete_rounded),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.red.withOpacity(0.1),
+                          foregroundColor: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildCoverImage() {
-    return Container(
-      height: 120,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade200,
-        image: const DecorationImage(
-          image: NetworkImage(
-            'https://images.unsplash.com/photo-1527838832700-5059252407fa?q=80&w=1000',
+  Widget _buildStat(
+      BuildContext context, IconData icon, String text, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
           ),
-          fit: BoxFit.cover,
+          child: Icon(icon, size: 16, color: color),
         ),
-      ),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -13,7 +13,6 @@ class ItineraryContent extends GetView<ItineraryController> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        const SliverToBoxAdapter(child: ItineraryMapView()),
         const SliverToBoxAdapter(child: TripInfoSection()),
         const SliverToBoxAdapter(child: DaySelector()),
         const SliverToBoxAdapter(child: PlacesSection()),
