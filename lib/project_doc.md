@@ -255,8 +255,25 @@ Chat -> User: Display final itinerary
 | image_url       | TEXT    | URL of place image                 |
 | place_details   | TEXT    | Additional details (JSON)          |
 | opening_hours   | TEXT    | Opening hours info (JSON)          |
+| duration        | TEXT    | Duration of visit (JSON)           |
 | location        | TEXT    | Location coordinates (JSON)        |
 
+
+Key Updates:
+1. Added `duration` field to PlaceItineraries table
+2. Added unique constraint on (day_itinerary_id, place_name) in PlaceItineraries
+3. All JSON fields now have default value of '{}'
+4. Proper foreign key constraints added
+5. Added indices for better query performance
+
+
+This schema supports:
+- User authentication and preferences
+- Multi-day itinerary planning
+- Place details with location data
+- Weather information integration
+- Unique place entries per day
+- Proper relationship management between entities
 
 ## Project Structure
 
@@ -333,6 +350,30 @@ malacca_ai_tour_guide/
 
 ├── pubspec.yaml                	# Project dependencies
 ├── README.md                   	# Project description and setup instructions
+
+
+## Implementation Status
+
+### Completed
+- Basic chat interface
+- LangChain integration
+- Local database setup
+- Authentication system
+- Basic itinerary management
+
+### In Progress
+- Leaflet map integration
+- Location-based services
+- Route visualization
+- Place uniqueness in database
+- Itinerary updates within date range
+
+### Planned
+- Weather integration
+- Offline map support
+- Enhanced restaurant recommendations
+- Budget optimization
+- Multi-language support
 
 
 ```

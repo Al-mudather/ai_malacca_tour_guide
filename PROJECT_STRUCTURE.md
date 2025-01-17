@@ -1,5 +1,76 @@
 # AI Malacca Tour Guide Project Structure
 
+## Overview
+
+The project follows a feature-first architecture with GetX for state management. Each feature is self-contained with its own views, controllers, and widgets.
+
+## Key Components
+
+### Features
+
+Each feature module contains:
+
+- **Controllers**: GetX controllers for state management
+- **Views**: Main UI screens
+- **Widgets**: Reusable UI components specific to the feature
+
+### Models
+
+Data models representing:
+
+- Itineraries and their components
+- Places and visits
+- User data
+- Weather information
+- Transportation details
+
+### Database
+
+SQLite implementation with:
+
+- Base helper class for database operations
+- CRUD operations for each model type
+- Table structures following the schema defined in project documentation
+
+### Agents
+
+LangChain-based AI agents for:
+
+- Attraction recommendations
+- Restaurant suggestions
+- Budget filtering
+- Itinerary optimization
+
+### Utils & Config
+
+- Constants and helper functions
+- Theme and color definitions
+- Environment configuration
+- API helpers
+- Image handling utilities
+
+### Routes
+
+- Centralized routing configuration
+- Screen navigation management
+
+## Dependencies
+
+Key packages used:
+
+- GetX for state management
+- SQLite for local database
+- LangChain for AI functionality
+- Flutter Map for mapping features
+- Geolocator for location services
+
+This structure promotes:
+
+- Feature isolation
+- Code reusability
+- Clear separation of concerns
+- Easy maintenance and scalability
+
 ```
 lib/
 ├── features/
