@@ -1,0 +1,22 @@
+# read the project_doc to understand the project structure .
+# Lests add the feature to add a trip to the trip list.
+## now if the user clicks on add to trip the following must happen
+### Taske:
+- Check if there is an active tinerary 
+- if there is no active tinerary create a new one with start dateDate the current date and the end date the last day the user defined it :
+    - example: the user have 5 days:
+    - startDate - now -> 14-1-2025.
+    - endDate -> 19-1-2025.
+- Create the tinerary days as the days requested by the user and connect each day to the tinerary.
+    - exmaple the user have 5 days:
+    - day 1 : 14-1-2025 
+    - day 2 : 15-1-2025 
+    - day 3 : 16-1-2025 
+    - day 4 : 17-1-2025 
+- Create the place the user selected for each day and connect each place to the day.
+
+# Remember :
+- Follow only the predefined structure of the project.
+- Do not create new models or new functions.
+- Just use the existing ones.
+- Take a deep breath and think step by step.

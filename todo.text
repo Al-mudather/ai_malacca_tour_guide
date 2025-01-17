@@ -1,0 +1,16 @@
+// notes:
+ - now let's work step-by-step.
+- Read the codes first to understand the flow.
+- Maintain the same logic and only add or make the nessasery changes.
+
+//todos:
+- ask the llm to give the itinerary a title.
+-ask the llm to rturn the place location(lat,lung) so the place can be view in the map.
+- ask the llm to return resturant also , so the user can have food.
+- Make the palces unique in the databse by the place name, so they will not be any dublicate places.
+- If the user update his plan in the valid date range by asking for new places, update the itinerary table also .
+- Use leaflet map instead of google map.
+- In the itinerary details , if the user activated a day he must be able to see the palaces in the map.
+- Show the user his current location on the map.
+- Show the user the route to the places in the map.
+
