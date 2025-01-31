@@ -215,8 +215,7 @@ Chat -> User: Display final itinerary
 | email          | TEXT    | User email (unique)        |
 | password       | TEXT    | User password              |
 | name           | TEXT    | User's name                |
-| default_budget | INTEGER | Default trip budget        |
-| preferences    | TEXT    | User preferences (JSON)     |
+
 
 ### Itineraries Table
 | Column       | Type    | Description                    |

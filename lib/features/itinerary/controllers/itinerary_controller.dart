@@ -173,6 +173,7 @@ class ItineraryController extends GetxController {
           return await _itinerariesCrud.createItinerary(
             ItineraryModel(
               userId: userId,
+              name: currentChatItinerary?['title'] ?? 'My Malacca Trip',
               title: currentChatItinerary?['title'] ?? 'My Malacca Trip',
               startDate: currentChatItinerary?['startDate'] ??
                   startDate.toIso8601String(),
@@ -212,10 +213,8 @@ class ItineraryController extends GetxController {
         return await _dayItinerariesCrud.createDayItinerary(
           DayItineraryModel(
             itineraryId: itineraryId,
-            date: date.toIso8601String(),
-            totalCost: 0,
-            status: 'planned',
-            weatherInfo: <String, dynamic>{},
+            dayNumber: dayNumber,
+            date: DateTime.parse(date.toIso8601String()),
           ),
         );
       }
@@ -232,7 +231,7 @@ class ItineraryController extends GetxController {
       final existingPlaces = await _placeItinerariesCrud
           .getPlaceItinerariesByDayId(dayItineraryId);
       final placeExists =
-          existingPlaces.any((place) => place.placeName == activity.name);
+          existingPlaces.any((place) => place.place == activity.name);
 
       if (placeExists) {
         throw Exception('This place is already added to this day');
@@ -246,26 +245,10 @@ class ItineraryController extends GetxController {
       final cost = numericCost.isEmpty ? 0 : int.tryParse(numericCost) ?? 0;
 
       final place = PlaceItineraryModel(
-        dayItineraryId: dayItineraryId,
-        placeName: activity.name,
-        placeType: 'attraction',
-        cost: cost,
-        time: activity.duration ?? '00:00', // Default time
-        notes: activity.tips ?? '',
-        address: '',
-        rating: activity.rating ?? 0,
-        imageUrl: imageUrl ?? '',
-        placeDetails: json.encode({
-          'description': activity.description,
-          'entranceFee': activity.entranceFee ?? '',
-          'duration': activity.duration ?? '',
-        }),
-        duration: activity.duration ?? '00:00',
-        openingHours: json.encode({'default': '09:00-17:00'}),
-        // location: json.encode({'latitude': 0.0, 'longitude': 0.0}),
-        location: activity.location != null
-            ? json.encode(activity.location)
-            : json.encode({'latitude': 0.0, 'longitude': 0.0}),
+        dayId: dayItineraryId,
+        placeId: activity.name.hashCode,
+        order: existingPlaces.length + 1,
+        time: activity.duration ?? '00:00',
       );
 
       await _placeItinerariesCrud.createPlaceItinerary(place);

@@ -1,66 +1,100 @@
 // lib/models/place_model.dart
 import 'dart:convert';
 import '../utils/types.dart';
+import 'category_model.dart';
 
 class Place {
   final int? id;
   final String name;
-  final String description;
-  final PlaceType type;
-  final double estimatedCost;
-  final String openingHours;
-  final double rating;
-  final String? imageUrl;
-  final Metadata details;
   final String location;
-  final Coordinates coordinates;
+  final double latitude;
+  final double longitude;
+  final String openingDuration;
+  final bool isFree;
+  final double? price;
+  final String description;
+  final String? imageUrl;
+  final int categoryId;
+  final CategoryModel? category;
 
   Place({
     this.id,
     required this.name,
-    required this.description,
-    required this.type,
-    required this.estimatedCost,
-    required this.openingHours,
-    required this.rating,
-    this.imageUrl,
-    this.details = const {},
     required this.location,
-    required this.coordinates,
+    required this.latitude,
+    required this.longitude,
+    required this.openingDuration,
+    required this.isFree,
+    this.price,
+    required this.description,
+    this.imageUrl,
+    required this.categoryId,
+    this.category,
   });
 
-  factory Place.fromJson(JsonMap json) {
+  factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
       id: json['id'],
       name: json['name'],
-      description: json['description'],
-      type: TypeHelpers.stringToPlaceType(json['type']),
-      estimatedCost: json['estimated_cost']?.toDouble() ?? 0.0,
-      openingHours: json['opening_hours'],
-      rating: json['rating']?.toDouble() ?? 0.0,
-      imageUrl: json['image_url'],
-      details: json['details'] ?? TypeConstants.defaultMetadata,
       location: json['location'],
-      coordinates: Map<String, double>.from(
-        json['coordinates'] ?? TypeConstants.defaultCoordinates,
-      ),
+      latitude: json['latitude']?.toDouble() ?? 0.0,
+      longitude: json['longitude']?.toDouble() ?? 0.0,
+      openingDuration: json['opening_duration'],
+      isFree: json['is_free'] ?? false,
+      price: json['price']?.toDouble(),
+      description: json['description'],
+      imageUrl: json['image_url'],
+      categoryId: json['category_id'],
+      category: json['Category'] != null
+          ? CategoryModel.fromJson(json['Category'])
+          : null,
     );
   }
 
-  JsonMap toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
-      'description': description,
-      'type': TypeHelpers.enumToString(type),
-      'estimated_cost': estimatedCost,
-      'opening_hours': openingHours,
-      'rating': rating,
-      'image_url': imageUrl,
-      'details': details,
       'location': location,
-      'coordinates': coordinates,
+      'latitude': latitude,
+      'longitude': longitude,
+      'opening_duration': openingDuration,
+      'is_free': isFree,
+      'price': price,
+      'description': description,
+      'image_url': imageUrl,
+      'category_id': categoryId,
     };
+  }
+
+  Place copyWith({
+    int? id,
+    String? name,
+    String? location,
+    double? latitude,
+    double? longitude,
+    String? openingDuration,
+    bool? isFree,
+    double? price,
+    String? description,
+    String? imageUrl,
+    int? categoryId,
+    CategoryModel? category,
+  }) {
+    return Place(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      openingDuration: openingDuration ?? this.openingDuration,
+      isFree: isFree ?? this.isFree,
+      price: price ?? this.price,
+      description: description ?? this.description,
+      imageUrl: imageUrl ?? this.imageUrl,
+      categoryId: categoryId ?? this.categoryId,
+      category: category ?? this.category,
+    );
   }
 
   // Add static method to parse a list of places from JSON string

@@ -81,58 +81,88 @@ class _SignInViewState extends State<SignInView> {
               ),
               const SizedBox(height: 32),
 
-              // Sign In Button
-              Container(
-                width: double.infinity,
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue[700]!, Colors.blue[500]!],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue[700]!.withOpacity(0.25),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
+              // Error Message
+              Obx(() {
+                if (authController.error.value.isNotEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      authController.error.value,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 14,
+                      ),
                     ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      authController.signIn(
-                        emailController.text,
-                        passwordController.text,
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Sign In',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white.withOpacity(0.8),
-                          size: 20,
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+
+              // Sign In Button
+              Obx(() => Container(
+                    width: double.infinity,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue[700]!, Colors.blue[500]!],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue[700]!.withOpacity(0.25),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),
-                  ),
-                ),
-              ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: authController.isLoading.value
+                            ? null
+                            : () {
+                                authController.signIn(
+                                  emailController.text,
+                                  passwordController.text,
+                                );
+                              },
+                        borderRadius: BorderRadius.circular(16),
+                        child: Center(
+                          child: authController.isLoading.value
+                              ? const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'Sign In',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      Icons.arrow_forward_rounded,
+                                      color: Colors.white.withOpacity(0.8),
+                                      size: 20,
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ),
+                  )),
 
               const SizedBox(height: 24),
 

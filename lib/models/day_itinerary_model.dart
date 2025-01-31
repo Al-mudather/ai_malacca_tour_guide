@@ -1,90 +1,106 @@
 import 'dart:convert';
+import 'package:ai_malacca_tour_guide/models/itinerary_model.dart';
 import 'package:ai_malacca_tour_guide/models/place_itinerary_model.dart';
 
 class DayItineraryModel {
   final int? id;
+  final int dayNumber;
   final int itineraryId;
-  final String date;
-  final int totalCost;
-  final List<PlaceItineraryModel>? places;
-  final String status; // planned, in-progress, completed
-  final String weatherInfo; // JSON string
+  final ItineraryModel? itinerary;
+  final List<PlaceItineraryModel> places;
+  final DateTime date;
 
   DayItineraryModel({
     this.id,
+    required this.dayNumber,
     required this.itineraryId,
+    this.itinerary,
+    this.places = const [],
     required this.date,
-    required this.totalCost,
-    this.places,
-    this.status = 'planned',
-    Map<String, dynamic>? weatherInfo,
-  }) : this.weatherInfo = json.encode(weatherInfo ?? {});
+  });
 
-  factory DayItineraryModel.fromMap(Map<String, dynamic> map) {
+  factory DayItineraryModel.fromJson(Map<String, dynamic> json) {
     return DayItineraryModel(
-      id: map['id'] as int?,
-      itineraryId: map['itinerary_id'] as int,
-      date: map['date'] as String,
-      totalCost: map['total_cost'] as int,
-      places: map['places'] != null
-          ? (map['places'] as List)
-              .map((place) => PlaceItineraryModel.fromMap(place))
-              .toList()
+      id: json['id'],
+      dayNumber: json['day_number'],
+      itineraryId: json['itinerary_id'],
+      itinerary: json['ItineraryModel'] != null
+          ? ItineraryModel.fromJson(json['ItineraryModel'])
           : null,
-      status: map['status'] as String? ?? 'planned',
-      weatherInfo: map['weather_info'] != null
-          ? json.decode(map['weather_info'] as String)
-          : {},
+      places: json['PlaceItineraryModels'] != null
+          ? (json['PlaceItineraryModels'] as List)
+              .map((place) => PlaceItineraryModel.fromJson(place))
+              .toList()
+          : [],
+      date: DateTime.parse(json['date'] as String),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'day_number': dayNumber,
+      'itinerary_id': itineraryId,
+      'date': date.toIso8601String(),
+    };
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'itinerary_id': itineraryId,
-      'date': date,
-      'total_cost': totalCost,
-      'status': status,
-      'weather_info': weatherInfo,
+      'date': date.toIso8601String(),
     };
+  }
+
+  static DayItineraryModel fromMap(Map<String, dynamic> map) {
+    return DayItineraryModel(
+      id: map['id'] as int?,
+      dayNumber: map['day_number'] as int,
+      itineraryId: map['itinerary_id'] as int,
+      itinerary: map['ItineraryModel'] != null
+          ? ItineraryModel.fromJson(map['ItineraryModel'])
+          : null,
+      places: map['PlaceItineraryModels'] != null
+          ? (map['PlaceItineraryModels'] as List)
+              .map((place) => PlaceItineraryModel.fromJson(place))
+              .toList()
+          : [],
+      date: DateTime.parse(map['date'] as String),
+    );
   }
 
   DayItineraryModel copyWith({
     int? id,
+    int? dayNumber,
     int? itineraryId,
-    String? date,
-    int? totalCost,
+    ItineraryModel? itinerary,
     List<PlaceItineraryModel>? places,
-    String? status,
-    Map<String, dynamic>? weatherInfo,
+    DateTime? date,
   }) {
     return DayItineraryModel(
       id: id ?? this.id,
+      dayNumber: dayNumber ?? this.dayNumber,
       itineraryId: itineraryId ?? this.itineraryId,
-      date: date ?? this.date,
-      totalCost: totalCost ?? this.totalCost,
+      itinerary: itinerary ?? this.itinerary,
       places: places ?? this.places,
-      status: status ?? this.status,
-      weatherInfo: weatherInfo ?? json.decode(this.weatherInfo),
+      date: date ?? this.date,
     );
   }
 
   // Helper methods
-  int get numberOfPlaces => places?.length ?? 0;
+  int get numberOfPlaces => places.length;
 
   bool get hasRestaurant =>
-      places?.any((place) => place.placeType == 'restaurant') ?? false;
+      places.any((place) => place.placeType == 'restaurant');
 
   List<PlaceItineraryModel> get attractions =>
-      places?.where((place) => place.placeType == 'attraction').toList() ?? [];
+      places.where((place) => place.placeType == 'attraction').toList();
 
   List<PlaceItineraryModel> get restaurants =>
-      places?.where((place) => place.placeType == 'restaurant').toList() ?? [];
+      places.where((place) => place.placeType == 'restaurant').toList();
 
-  String get firstPlaceTime => places?.first.time ?? '';
+  String get firstPlaceTime => places.first.time;
 
-  String get lastPlaceTime => places?.last.time ?? '';
-
-  // Helper getter for decoded weather info
-  Map<String, dynamic> get weatherInfoMap => json.decode(weatherInfo);
+  String get lastPlaceTime => places.last.time;
 }

@@ -1,0 +1,8 @@
+# Tasks :
+- maintanin the extisting logic.
+
+# ** Remember**:
+- User the needed service from the service folder.
+- You can use the dependencies.dart file for the dependencies.
+- Take a deep breath and think step by step.
+- The models are final and you are not allowed to change them.

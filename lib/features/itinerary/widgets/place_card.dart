@@ -15,8 +15,8 @@ class PlaceCard extends StatelessWidget {
     Get.toNamed(
       Routes.MAP,
       arguments: {
-        'latitude': place.latitude,
-        'longitude': place.longitude,
+        'latitude': place.place?.latitude,
+        'longitude': place.place?.longitude,
       },
     );
   }
@@ -44,13 +44,13 @@ class PlaceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image Section with Overlay
-            if (place.imageUrl != null)
+            if (place.place?.imageUrl != null)
               AspectRatio(
                 aspectRatio: 2 / 1,
                 child: Stack(
                   children: [
                     Image.network(
-                      place.imageUrl!,
+                      place.place?.imageUrl ?? '',
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
@@ -92,35 +92,35 @@ class PlaceCard extends StatelessWidget {
                       ),
                     ),
                     // Rating badge
-                    if (place.rating != null)
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.amber,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.star_rounded,
-                                  color: Colors.white, size: 14),
-                              const SizedBox(width: 4),
-                              Text(
-                                place.rating!.toStringAsFixed(1),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    // if (place.place?.rating != null)
+                    //   Positioned(
+                    //     top: 12,
+                    //     left: 12,
+                    //     child: Container(
+                    //       padding: const EdgeInsets.symmetric(
+                    //           horizontal: 12, vertical: 6),
+                    //       decoration: BoxDecoration(
+                    //         color: Colors.amber,
+                    //         borderRadius: BorderRadius.circular(20),
+                    //       ),
+                    //       child: Row(
+                    //         mainAxisSize: MainAxisSize.min,
+                    //         children: [
+                    //           const Icon(Icons.star_rounded,
+                    //               color: Colors.white, size: 14),
+                    //           const SizedBox(width: 4),
+                    //           Text(
+                    //             place.rating!.toStringAsFixed(1),
+                    //             style: const TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: 12,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
                   ],
                 ),
               ),
@@ -137,7 +137,7 @@ class PlaceCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          place.placeName,
+                          place.place?.name ?? '',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -146,7 +146,7 @@ class PlaceCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (place.cost != null) ...[
+                      if (place.place?.price != null) ...[
                         const SizedBox(width: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -161,7 +161,7 @@ class PlaceCard extends StatelessWidget {
                               Icon(Icons.attach_money_rounded,
                                   size: 14, color: Colors.green[700]),
                               Text(
-                                'RM ${place.cost}',
+                                'RM ${place.place?.price}',
                                 style: TextStyle(
                                   color: Colors.green[700],
                                   fontSize: 12,
@@ -177,28 +177,28 @@ class PlaceCard extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   // Address
-                  if (place.address != null)
-                    Row(
-                      children: [
-                        Icon(Icons.location_on_rounded,
-                            size: 14, color: Theme.of(context).primaryColor),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            place.address!,
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
+                  // if (place.place?. != null)
+                  //   Row(
+                  //     children: [
+                  //       Icon(Icons.location_on_rounded,
+                  //           size: 14, color: Theme.of(context).primaryColor),
+                  //       const SizedBox(width: 4),
+                  //       Expanded(
+                  //         child: Text(
+                  //           place.address!,
+                  //           style: TextStyle(
+                  //             color: Colors.grey[700],
+                  //             fontSize: 12,
+                  //           ),
+                  //           maxLines: 1,
+                  //           overflow: TextOverflow.ellipsis,
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
 
                   // Notes
-                  if (place.notes?.isNotEmpty == true) ...[
+                  if (place.place?.description.isNotEmpty == true) ...[
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -219,7 +219,7 @@ class PlaceCard extends StatelessWidget {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              place.notes!,
+                              place.place?.description ?? '',
                               style: TextStyle(
                                 color: Colors.grey[800],
                                 fontSize: 12,

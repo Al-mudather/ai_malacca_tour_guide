@@ -1,73 +1,64 @@
-import 'package:ai_malacca_tour_guide/database/base/database_helper.dart';
-import 'package:ai_malacca_tour_guide/models/day_itinerary_model.dart';
+import '../base/database_helper.dart';
+import '../../models/day_itinerary_model.dart';
 
 class DayItinerariesCRUD {
-  final dbHelper = DatabaseHelper.instance;
+  final DatabaseHelper dbHelper;
+
+  DayItinerariesCRUD({DatabaseHelper? dbHelper})
+      : dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   // Create
   Future<DayItineraryModel> createDayItinerary(
       DayItineraryModel dayItinerary) async {
-    final db = await dbHelper.database;
-    final id = await db.insert('day_itineraries', dayItinerary.toMap());
+    final id = dbHelper.getNewDayItineraryId();
+    final dayData = dayItinerary.toMap()..['id'] = id;
+    dbHelper.dayItineraries[id] = dayData;
     return dayItinerary.copyWith(id: id);
   }
 
   // Read
   Future<DayItineraryModel?> getDayItineraryById(int id) async {
-    final db = await dbHelper.database;
-    final maps = await db.query(
-      'day_itineraries',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    if (maps.isNotEmpty) {
-      return DayItineraryModel.fromMap(maps.first);
-    }
-    return null;
+    final data = dbHelper.dayItineraries[id];
+    return data != null ? DayItineraryModel.fromMap(data) : null;
   }
 
   Future<List<DayItineraryModel>> getDayItinerariesByItineraryId(
       int itineraryId) async {
-    final db = await dbHelper.database;
-    final maps = await db.query(
-      'day_itineraries',
-      where: 'itinerary_id = ?',
-      whereArgs: [itineraryId],
-      orderBy: 'date ASC',
-    );
-
-    return maps.map((map) => DayItineraryModel.fromMap(map)).toList();
+    return dbHelper.dayItineraries.values
+        .where((data) => data['itinerary_id'] == itineraryId)
+        .map((data) => DayItineraryModel.fromMap(data))
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
   }
 
   // Update
   Future<int> updateDayItinerary(DayItineraryModel dayItinerary) async {
-    final db = await dbHelper.database;
-    return db.update(
-      'day_itineraries',
-      dayItinerary.toMap(),
-      where: 'id = ?',
-      whereArgs: [dayItinerary.id],
-    );
+    if (dayItinerary.id != null &&
+        dbHelper.dayItineraries.containsKey(dayItinerary.id)) {
+      dbHelper.dayItineraries[dayItinerary.id!] = dayItinerary.toMap();
+      return 1;
+    }
+    return 0;
   }
 
   // Delete
   Future<int> deleteDayItinerary(int id) async {
-    final db = await dbHelper.database;
-    return await db.delete(
-      'day_itineraries',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    if (dbHelper.dayItineraries.containsKey(id)) {
+      dbHelper.dayItineraries.remove(id);
+      return 1;
+    }
+    return 0;
   }
 
-  // Delete all day itineraries for an itinerary
   Future<int> deleteItineraryDays(int itineraryId) async {
-    final db = await dbHelper.database;
-    return await db.delete(
-      'day_itineraries',
-      where: 'itinerary_id = ?',
-      whereArgs: [itineraryId],
-    );
+    final toRemove = dbHelper.dayItineraries.entries
+        .where((entry) => entry.value['itinerary_id'] == itineraryId)
+        .map((e) => e.key)
+        .toList();
+
+    for (final id in toRemove) {
+      dbHelper.dayItineraries.remove(id);
+    }
+    return toRemove.length;
   }
 }

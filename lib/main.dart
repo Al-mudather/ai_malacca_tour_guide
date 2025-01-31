@@ -14,7 +14,7 @@ void main() async {
   await Environment.initialize();
 
   // Initialize database by just accessing it once
-  await DatabaseHelper.instance.database;
+  await DatabaseHelper.instance.initializeMockData();
 
   // Load the dependences
   await dep.init();

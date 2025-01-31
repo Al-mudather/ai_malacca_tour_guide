@@ -1,86 +1,82 @@
-import 'package:ai_malacca_tour_guide/database/base/database_helper.dart';
-import 'package:ai_malacca_tour_guide/models/place_itinerary_model.dart';
+import '../base/database_helper.dart';
+import '../../models/place_itinerary_model.dart';
 
 class PlaceItinerariesCRUD {
-  final dbHelper = DatabaseHelper.instance;
+  final DatabaseHelper dbHelper;
+
+  PlaceItinerariesCRUD({DatabaseHelper? dbHelper})
+      : dbHelper = dbHelper ?? DatabaseHelper.instance;
 
   // Create
   Future<PlaceItineraryModel> createPlaceItinerary(
-    PlaceItineraryModel placeItinerary,
-  ) async {
-    final db = await dbHelper.database;
-    final id = await db.insert('place_itineraries', placeItinerary.toMap());
+      PlaceItineraryModel placeItinerary) async {
+    // Check for uniqueness by place name in the day
+    final existingPlace = dbHelper.placeItineraries.values.firstWhere(
+      (place) =>
+          place['day_itinerary_id'] == placeItinerary.dayId &&
+          place['place_name'] == placeItinerary.place,
+      orElse: () => {},
+    );
+
+    if (existingPlace.isNotEmpty) {
+      throw Exception('Place already exists in this day itinerary');
+    }
+
+    final id = dbHelper.getNewPlaceItineraryId();
+    final placeData = placeItinerary.toJson()..['id'] = id;
+    dbHelper.placeItineraries[id] = placeData;
     return placeItinerary.copyWith(id: id);
   }
 
   // Read
   Future<PlaceItineraryModel?> getPlaceItineraryById(int id) async {
-    final db = await dbHelper.database;
-    final maps = await db.query(
-      'place_itineraries',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-
-    if (maps.isNotEmpty) {
-      return PlaceItineraryModel.fromMap(maps.first);
-    }
-    return null;
+    final data = dbHelper.placeItineraries[id];
+    return data != null ? PlaceItineraryModel.fromJson(data) : null;
   }
 
   Future<List<PlaceItineraryModel>> getPlaceItinerariesByDayId(
       int dayItineraryId) async {
-    final db = await dbHelper.database;
-    final maps = await db.query(
-      'place_itineraries',
-      where: 'day_itinerary_id = ?',
-      whereArgs: [dayItineraryId],
-      orderBy: 'time ASC',
-    );
-
-    return maps.map((map) => PlaceItineraryModel.fromMap(map)).toList();
+    return dbHelper.placeItineraries.values
+        .where((data) => data['day_itinerary_id'] == dayItineraryId)
+        .map((data) => PlaceItineraryModel.fromJson(data))
+        .toList()
+      ..sort((a, b) => a.time.compareTo(b.time));
   }
 
   // Update
   Future<int> updatePlaceItinerary(PlaceItineraryModel placeItinerary) async {
-    final db = await dbHelper.database;
-    return db.update(
-      'place_itineraries',
-      placeItinerary.toMap(),
-      where: 'id = ?',
-      whereArgs: [placeItinerary.id],
-    );
+    if (placeItinerary.id != null &&
+        dbHelper.placeItineraries.containsKey(placeItinerary.id)) {
+      dbHelper.placeItineraries[placeItinerary.id!] = placeItinerary.toJson();
+      return 1;
+    }
+    return 0;
   }
 
   // Delete
   Future<int> deletePlaceItinerary(int id) async {
-    final db = await dbHelper.database;
-    return await db.delete(
-      'place_itineraries',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    if (dbHelper.placeItineraries.containsKey(id)) {
+      dbHelper.placeItineraries.remove(id);
+      return 1;
+    }
+    return 0;
   }
 
-  // Delete all place itineraries for a day
   Future<int> deleteDayPlaces(int dayItineraryId) async {
-    final db = await dbHelper.database;
-    return await db.delete(
-      'place_itineraries',
-      where: 'day_itinerary_id = ?',
-      whereArgs: [dayItineraryId],
-    );
+    final toRemove = dbHelper.placeItineraries.entries
+        .where((entry) => entry.value['day_itinerary_id'] == dayItineraryId)
+        .map((e) => e.key)
+        .toList();
+
+    for (var id in toRemove) {
+      dbHelper.placeItineraries.remove(id);
+    }
+    return toRemove.length;
   }
 
-  // Get total cost for a day
   Future<int> getDayTotalCost(int dayItineraryId) async {
-    final db = await dbHelper.database;
-    final result = await db.rawQuery('''
-      SELECT SUM(cost) as total_cost
-      FROM place_itineraries
-      WHERE day_itinerary_id = ?
-    ''', [dayItineraryId]);
-
-    return (result.first['total_cost'] as int?) ?? 0;
+    return dbHelper.placeItineraries.values
+        .where((data) => data['day_itinerary_id'] == dayItineraryId)
+        .fold<int>(0, (sum, place) => sum + (place['cost'] as int? ?? 0));
   }
 }

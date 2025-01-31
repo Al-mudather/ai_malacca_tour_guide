@@ -20,7 +20,7 @@ class DaySelector extends GetView<ItineraryController> {
           itemCount: controller.days.length,
           itemBuilder: (context, index) {
             final dayItinerary = controller.days[index];
-            final date = DateTime.parse(dayItinerary.date);
+            final date = DateTime.parse(dayItinerary.date.toString());
             final dayNumber = index + 1;
 
             return Obx(() {
