@@ -1,33 +1,38 @@
 class UserModel {
   final int? id;
   final String email;
-  final String password;
+  final String? password;
   final String? name;
   final int? defaultBudget;
 
   UserModel({
     this.id,
     required this.email,
-    required this.password,
+    this.password,
     this.name,
     this.defaultBudget,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
-    return UserModel(
-      id: map['id'] as int?,
-      email: map['email'] as String,
-      password: map['password'] as String,
-      name: map['name'] as String?,
-      defaultBudget: map['default_budget'] as int?,
-    );
+    try {
+      return UserModel(
+        id: map['id'] as int?,
+        email: map['email'] as String,
+        password: map['password'] as String?,
+        name: map['full_name'] as String?,
+        defaultBudget: map['default_budget'] as int?,
+      );
+    } catch (e) {
+      print('Received map data: $map');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'email': email,
-      'password': password,
+      if (password != null) 'password': password,
       'name': name,
       'default_budget': defaultBudget,
     };

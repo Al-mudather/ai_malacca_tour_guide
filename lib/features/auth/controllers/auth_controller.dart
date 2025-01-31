@@ -4,6 +4,7 @@ import 'package:ai_malacca_tour_guide/services/user_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 class AuthController extends GetxController {
   final SharedPreferences appStorage;
@@ -38,12 +39,33 @@ class AuthController extends GetxController {
       currentUser.value = user;
       Get.offAllNamed(Routes.HOME);
       return true;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print('Response data: ${e.response?.data}');
+        print('Response status: ${e.response?.statusCode}');
+
+        switch (e.response?.statusCode) {
+          case 401:
+            error.value = 'Invalid email or password';
+            break;
+          case 404:
+            error.value = 'User not found';
+            break;
+          case 400:
+            error.value = e.response?.data['message'] ?? 'Invalid credentials';
+            break;
+          default:
+            error.value = 'Login failed. Please try again.';
+        }
+      } else if (e.type == DioErrorType.connectionTimeout) {
+        error.value = 'Connection timeout. Please check your internet.';
+      } else {
+        error.value = 'Network error. Please check your connection.';
+      }
+      return false;
     } catch (e) {
-      print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;');
-      print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;');
-      print(e);
-      print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;');
-      error.value = 'Invalid credentials or connection error';
+      print('Unexpected error: $e');
+      error.value = 'An unexpected error occurred';
       return false;
     } finally {
       isLoading.value = false;
@@ -64,11 +86,9 @@ class AuthController extends GetxController {
         email: email,
         password: password,
         fullName: fullName,
-        username: email.split('@')[0], // Generate username from email
+        username: email.split('@')[0],
       );
 
-      // Instead of setting currentUser and redirecting to home,
-      // show success message and redirect to login
       Get.snackbar(
         'Success',
         'Account created successfully! Please login.',
@@ -77,10 +97,45 @@ class AuthController extends GetxController {
         duration: const Duration(seconds: 3),
       );
 
-      Get.offNamed(Routes.SIGN_IN); // Redirect to login instead of home
+      Get.offNamed(Routes.SIGN_IN);
       return true;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        final responseData = e.response?.data;
+        // Handle email already registered error
+        if (responseData is Map &&
+            responseData['error'] == 'Email already registered') {
+          error.value = 'This email is already registered';
+        } else {
+          switch (e.response?.statusCode) {
+            case 409:
+              error.value = 'Email already exists';
+              break;
+            case 400:
+              error.value = responseData is Map
+                  ? responseData['error'] ?? 'Invalid input data'
+                  : 'Invalid input data';
+              break;
+            case 422:
+              error.value = 'Invalid email format';
+              break;
+            default:
+              error.value = 'Registration failed. Please try again.';
+          }
+        }
+      } else if (e.type == DioErrorType.connectionTimeout) {
+        error.value = 'Connection timeout. Please check your internet.';
+      } else {
+        error.value = 'Network error. Please check your connection.';
+      }
+      return false;
     } catch (e) {
-      error.value = 'Registration failed. Please try again.';
+      print('Unexpected error: $e');
+      if (e.toString().contains('Email already registered')) {
+        error.value = 'This email is already registered';
+      } else {
+        error.value = 'An unexpected error occurred';
+      }
       return false;
     } finally {
       isLoading.value = false;

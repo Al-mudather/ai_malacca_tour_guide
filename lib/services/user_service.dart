@@ -21,7 +21,7 @@ class UserService {
     required String fullName,
     String? phoneNumber,
   }) async {
-    final response = await _api.post('/auth/register', {
+    final response = await _api.post('/api/auth/register', {
       'username': username,
       'email': email,
       'password': password,
@@ -29,9 +29,13 @@ class UserService {
       if (phoneNumber != null) 'phone_number': phoneNumber,
     });
 
-    final user = UserModel.fromMap(response['user']);
-    await _saveAuthData(response['token'], user);
-    return user;
+    // For registration, we might just want to return success without user data
+    // since we'll redirect to login anyway
+    return UserModel(
+      email: email,
+      password: password,
+      name: fullName,
+    );
   }
 
   // Login user

@@ -1,65 +1,106 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   final String baseUrl;
-  final Map<String, String> defaultHeaders;
+  final Dio _dio;
+  final url = "http://localhost:5000";
 
   ApiService({String? baseUrl})
-      : baseUrl = baseUrl ?? dotenv.env['API_URL'] ?? 'http://localhost:5000',
-        defaultHeaders = {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        };
+      : baseUrl = baseUrl ??
+            dotenv.env['API_URL'] ??
+            'http://localhost:5000', // Using 10.0.2.2 for Android emulator
+        // 'http://10.0.2.2:5000', // Using 10.0.2.2 for Android emulator
+        _dio = Dio() {
+    _dio.options.baseUrl = this.baseUrl;
+    _dio.options.connectTimeout = const Duration(seconds: 5);
+    _dio.options.receiveTimeout = const Duration(seconds: 3);
+    _dio.options.headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+
+    // Add logging interceptor
+    _dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        print('REQUEST[${options.method}] => PATH: ${options.path}');
+        return handler.next(options);
+      },
+      onResponse: (response, handler) {
+        print(
+            'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+        return handler.next(response);
+      },
+      onError: (error, handler) {
+        print(
+            'ERROR[${error.response?.statusCode}] => PATH: ${error.requestOptions.path}');
+        print('Response: ${error.response}');
+        return handler.next(error);
+      },
+    ));
+  }
 
   Future<Map<String, dynamic>> get(String endpoint) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: defaultHeaders,
-    );
-    return _handleResponse(response);
+    try {
+      final response = await _dio.get(url + endpoint);
+      return response.data;
+    } on DioError catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: defaultHeaders,
-      body: jsonEncode(data),
-    );
-    return _handleResponse(response);
+    try {
+      final response = await _dio.post(url + endpoint, data: data);
+      return response.data;
+    } on DioError catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
   }
 
   Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> data) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: defaultHeaders,
-      body: jsonEncode(data),
-    );
-    return _handleResponse(response);
+    try {
+      final response = await _dio.put(url + endpoint, data: data);
+      return response.data;
+    } on DioError catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
   }
 
   Future<void> delete(String endpoint) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: defaultHeaders,
-    );
-    _handleResponse(response);
+    try {
+      await _dio.delete(url + endpoint);
+    } on DioError catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
   }
 
-  Map<String, dynamic> _handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isEmpty) return {};
-      return jsonDecode(response.body);
+  void _handleDioError(DioError e) {
+    if (e.response != null) {
+      throw HttpException(
+        e.response?.data?.toString() ?? e.message ?? 'Unknown error',
+        uri: Uri.parse(e.requestOptions.path),
+        statusCode: e.response?.statusCode ?? 500,
+      );
+    } else {
+      throw HttpException(
+        e.message ?? 'Network error',
+        uri: Uri.parse(e.requestOptions.path),
+        statusCode: 500,
+      );
     }
+  }
 
-    throw HttpException(
-      response.body,
-      uri: response.request?.url,
-      statusCode: response.statusCode,
-    );
+  // Update token for authenticated requests
+  void updateToken(String token) {
+    _dio.options.headers['Authorization'] = 'Bearer $token';
   }
 }
 
