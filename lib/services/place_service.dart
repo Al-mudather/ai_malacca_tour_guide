@@ -49,12 +49,6 @@ class PlaceService {
     final categories = await _categoryService.getAllCategories();
     final categoryMap = {for (var cat in categories) cat.id: cat};
 
-    print('rrrrrrrrrrrrrr categoryMap rrrrrrrrrrrrrrrrrrrrrrrr');
-    print(categoryMap);
-    print('rrrrrrrrrrrrrr data before category rrrrrrrrrrrrrrrrrrrrrrrr');
-    print(data);
-    print('rrrrrrrrrrrrrr categoryMap rrrrrrrrrrrrrrrrrrrrrrrr');
-
     return data.asMap().entries.map((entry) {
       final json = entry.value;
       if (json is Map<String, dynamic>) {

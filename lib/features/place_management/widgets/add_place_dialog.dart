@@ -37,15 +37,15 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
     super.initState();
 
     // Populate form fields with mock data
-    _nameController.text = 'The Baboon House';
-    _locationController.text =
-        '89, Jalan Tun Tan Cheng Lock, Taman Kota Laksamana, 75200 Melaka, Malaysia';
-    _latitudeController.text = '2.1973';
-    _longitudeController.text = '102.2462';
+    _nameController.text = 'The Majestic Malacca';
+    _locationController.text = '188 Jalan Bunga Raya, 75100 Melaka, Malaysia';
+    _latitudeController.text = '2.2026';
+    _longitudeController.text = '102.2542';
     _openingDurationController.text = '10AM - 5PM (Closed on Tuesdays)';
     _descriptionController.text =
-        'The Baboon House is a quaint café located on Jonker Street, known for its laid-back vibe and open-air courtyard adorned with greenery. It offers a selection of homemade chicken, beef, or pork hamburgers, complemented by creamy Vietnamese drip coffee. The interior features eclectic furnishings, creating a cozy atmosphere for visitors.';
-    _imageUrlController.text = 'https://example.com/the-baboon-house.jpg';
+        'The Majestic Malacca is a restored 1920s Straits Settlement mansion that offers a blend of historic charm and modern luxury. Located in the heart of Malacca City, this 5-star hotel features elegantly furnished rooms and suites, a spa that incorporates Peranakan healing traditions, and a restaurant serving authentic Kristang cuisine.';
+    _imageUrlController.text =
+        'https://www.majesticmalacca.com/images/majestic-malacca.jpg';
   }
 
   @override
