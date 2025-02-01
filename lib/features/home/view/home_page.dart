@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter/foundation.dart';
 import 'package:ai_malacca_tour_guide/routes/app_pages.dart';
-import 'package:ai_malacca_tour_guide/features/debug/debug_menu.dart';
 import 'package:ai_malacca_tour_guide/features/home/widgets/location_header.dart';
 import 'package:ai_malacca_tour_guide/features/home/widgets/welcome_card.dart';
 import 'package:ai_malacca_tour_guide/features/home/widgets/home_bottom_nav.dart';
