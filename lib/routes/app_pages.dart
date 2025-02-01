@@ -12,6 +12,16 @@ import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ai_malacca_tour_guide/features/debug/debug_menu.dart';
 import 'package:ai_malacca_tour_guide/features/map/view/map_screen.dart';
+import 'package:ai_malacca_tour_guide/features/settings/view/settings_view.dart';
+import 'package:ai_malacca_tour_guide/features/settings/bindings/settings_binding.dart';
+import 'package:ai_malacca_tour_guide/features/user_management/view/user_management_view.dart';
+import 'package:ai_malacca_tour_guide/features/user_management/bindings/user_management_binding.dart';
+import 'package:ai_malacca_tour_guide/features/category_management/view/category_management_view.dart';
+import 'package:ai_malacca_tour_guide/features/category_management/bindings/category_management_binding.dart';
+import 'package:ai_malacca_tour_guide/features/place_management/view/place_management_view.dart';
+import 'package:ai_malacca_tour_guide/features/place_management/bindings/place_management_binding.dart';
+import 'package:ai_malacca_tour_guide/features/database_management/view/database_management_view.dart';
+import 'package:ai_malacca_tour_guide/features/database_management/bindings/database_management_binding.dart';
 
 class AppPages {
   AppPages._();
@@ -62,6 +72,26 @@ class AppPages {
         name: '/debug',
         page: () => const DebugMenu(),
       ),
+    GetPage(
+      name: Routes.SETTINGS,
+      page: () => const SettingsView(),
+      binding: SettingsBinding(),
+    ),
+    GetPage(
+      name: Routes.USER_MANAGEMENT,
+      page: () => const UserManagementView(),
+      binding: UserManagementBinding(),
+    ),
+    GetPage(
+      name: Routes.CATEGORY_MANAGEMENT,
+      page: () => const CategoryManagementView(),
+      binding: CategoryManagementBinding(),
+    ),
+    GetPage(
+      name: Routes.PLACE_MANAGEMENT,
+      page: () => const PlaceManagementView(),
+      binding: PlaceManagementBinding(),
+    ),
   ];
 }
 
@@ -75,4 +105,9 @@ abstract class Routes {
   static const ITINERARY = '/itinerary';
   static const ITINERARY_DETAILS = '/itinerary/details';
   static const MAP = '/map';
+  static const SETTINGS = '/settings';
+  static const USER_MANAGEMENT = '/user-management';
+  static const CATEGORY_MANAGEMENT = '/category-management';
+  static const PLACE_MANAGEMENT = '/place-management';
+  static const DATABASE_MANAGEMENT = '/database-management';
 }

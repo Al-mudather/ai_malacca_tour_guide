@@ -41,10 +41,17 @@ class ApiService {
     ));
   }
 
-  Future<Map<String, dynamic>> get(String endpoint) async {
+  Future<dynamic> get(String endpoint) async {
     try {
       final response = await _dio.get(url + endpoint);
-      return response.data;
+      if (response.data is Map<String, dynamic>) {
+        return response.data;
+      } else if (response.data is List) {
+        return {'data': response.data};
+      } else {
+        throw FormatException(
+            'Unexpected response format: ${response.data.runtimeType}');
+      }
     } on DioError catch (e) {
       _handleDioError(e);
       rethrow;

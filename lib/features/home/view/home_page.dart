@@ -35,8 +35,8 @@ class _HomeViewState extends State<HomeView> {
       case 3: // Account
         Get.to(() => const AccountView());
         break;
-      case 4: // Debug Menu
-        Get.to(() => const DebugMenu());
+      case 4: // Settings
+        Get.toNamed(Routes.SETTINGS);
         break;
     }
   }

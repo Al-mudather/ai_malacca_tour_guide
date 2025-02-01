@@ -1,7 +1,18 @@
 # Tasks :
+
 - maintanin the extisting logic.
 
+# Tools:
+
+- Flutter.
+- Flutter hooks
+- GetX.
+- Dart.
+- Dio.
+- Google Maps API.
+
 # ** Remember**:
+
 - User the needed service from the service folder.
 - You can use the dependencies.dart file for the dependencies.
 - Take a deep breath and think step by step.

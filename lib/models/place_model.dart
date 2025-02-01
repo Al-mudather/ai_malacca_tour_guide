@@ -34,17 +34,19 @@ class Place {
 
   factory Place.fromJson(Map<String, dynamic> json) {
     return Place(
-      id: json['id'],
-      name: json['name'],
-      location: json['location'],
+      id: json['id'] is String ? int.parse(json['id']) : json['id'],
+      name: json['name']?.toString() ?? '',
+      location: json['location']?.toString() ?? '',
       latitude: json['latitude']?.toDouble() ?? 0.0,
       longitude: json['longitude']?.toDouble() ?? 0.0,
-      openingDuration: json['opening_duration'],
+      openingDuration: json['opening_duration']?.toString() ?? '',
       isFree: json['is_free'] ?? false,
       price: json['price']?.toDouble(),
-      description: json['description'],
-      imageUrl: json['image_url'],
-      categoryId: json['category_id'],
+      description: json['description']?.toString() ?? '',
+      imageUrl: json['image_url']?.toString(),
+      categoryId: json['category_id'] is String
+          ? int.parse(json['category_id'])
+          : (json['category_id'] ?? 0),
       category: json['Category'] != null
           ? CategoryModel.fromJson(json['Category'])
           : null,

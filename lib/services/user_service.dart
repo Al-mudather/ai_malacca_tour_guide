@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import 'api_service.dart';
@@ -98,10 +99,45 @@ class UserService {
 
   // Get all users (admin only)
   Future<List<UserModel>> getAllUsers() async {
-    final response = await _api.get('/api/users');
-    return (response['data'] as List)
-        .map((json) => UserModel.fromMap(json))
-        .toList();
+    try {
+      developer.log('Fetching all users...');
+      final response = await _api.get('/api/users');
+      developer.log('Raw API response: $response');
+
+      List<dynamic> usersList;
+      if (response is List) {
+        usersList = response;
+      } else if (response is Map<String, dynamic> &&
+          response.containsKey('data')) {
+        final data = response['data'];
+        if (data is! List) {
+          throw Exception('Data is not a list');
+        }
+        usersList = data;
+      } else {
+        developer.log('Unexpected response format: $response');
+        throw Exception('Unexpected response format');
+      }
+
+      final users = usersList.map((json) {
+        developer.log('Processing user data: $json');
+        if (json is! Map<String, dynamic>) {
+          developer.log('Invalid user data format: $json');
+          throw Exception('Invalid user data format');
+        }
+        return UserModel.fromMap(json);
+      }).toList();
+
+      developer.log('Successfully processed ${users.length} users');
+      return users;
+    } catch (e, stackTrace) {
+      developer.log(
+        'Error in getAllUsers',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      rethrow;
+    }
   }
 
   // Update user (admin only)

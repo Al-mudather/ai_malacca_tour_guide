@@ -1,6 +1,7 @@
 import 'package:ai_malacca_tour_guide/models/user_model.dart';
 import 'package:ai_malacca_tour_guide/routes/app_pages.dart';
 import 'package:ai_malacca_tour_guide/services/user_service.dart';
+import 'package:ai_malacca_tour_guide/services/api_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -39,33 +40,34 @@ class AuthController extends GetxController {
       currentUser.value = user;
       Get.offAllNamed(Routes.HOME);
       return true;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print('Response data: ${e.response?.data}');
-        print('Response status: ${e.response?.statusCode}');
+    } on HttpException catch (e) {
+      print('Response status: ${e.statusCode}');
+      print('Response message: ${e.message}');
 
-        switch (e.response?.statusCode) {
-          case 401:
-            error.value = 'Invalid email or password';
-            break;
-          case 404:
-            error.value = 'User not found';
-            break;
-          case 400:
-            error.value = e.response?.data['message'] ?? 'Invalid credentials';
-            break;
-          default:
-            error.value = 'Login failed. Please try again.';
-        }
-      } else if (e.type == DioErrorType.connectionTimeout) {
-        error.value = 'Connection timeout. Please check your internet.';
-      } else {
-        error.value = 'Network error. Please check your connection.';
+      switch (e.statusCode) {
+        case 401:
+          error.value = 'The email or password you entered is incorrect';
+          break;
+        case 404:
+          error.value = 'No account found with this email';
+          break;
+        case 400:
+          if (e.message.contains('Invalid credentials')) {
+            error.value = 'The email or password you entered is incorrect';
+          } else {
+            error.value = 'Invalid login details';
+          }
+          break;
+        case 500:
+          error.value = 'Server error. Please try again later.';
+          break;
+        default:
+          error.value = 'Unable to sign in. Please try again later.';
       }
       return false;
     } catch (e) {
       print('Unexpected error: $e');
-      error.value = 'An unexpected error occurred';
+      error.value = 'An unexpected error occurred. Please try again later.';
       return false;
     } finally {
       isLoading.value = false;

@@ -35,7 +35,7 @@ class HomeBottomNav extends StatelessWidget {
               _buildAddButton(),
               _buildNavItem(3, Icons.person_outline, Icons.person, 'Account'),
               _buildNavItem(
-                  4, Icons.bug_report_outlined, Icons.bug_report, 'Debug'),
+                  4, Icons.settings_outlined, Icons.settings, 'Settings'),
             ],
           ),
         ),

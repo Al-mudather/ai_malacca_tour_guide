@@ -1,6 +1,8 @@
 import 'package:ai_malacca_tour_guide/controllers/agent_controller.dart';
 import 'package:ai_malacca_tour_guide/features/auth/controllers/auth_controller.dart';
 import 'package:ai_malacca_tour_guide/services/api_service.dart';
+import 'package:ai_malacca_tour_guide/services/category_service.dart';
+// import 'package:ai_malacca_tour_guide/services/place_service.dart';
 import 'package:ai_malacca_tour_guide/services/user_service.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +18,8 @@ Future<void> init() async {
     Get.put(ApiService());
     // Register dependencies
     Get.put(UserService(prefs: sharedPreferences));
+    Get.lazyPut(() => CategoryService());
+    // Get.lazyPut(() => PlaceService());
     Get.lazyPut(() => sharedPreferences, fenix: true);
     Get.lazyPut(() => AuthController(appStorage: Get.find()), fenix: true);
     Get.put<AgentController>(agentController, permanent: true);

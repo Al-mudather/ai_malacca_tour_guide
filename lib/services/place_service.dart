@@ -31,15 +31,23 @@ class PlaceService {
       if (imageUrl != null) 'image_url': imageUrl,
       'category_id': categoryId,
     });
+    print('rrrrrrrrrrrrrr response rrrrrrrrrrrrrrrrrrrrrrrr');
+    print(response);
+    print('rrrrrrrrrrrrrr response rrrrrrrrrrrrrrrrrrrrrrrr');
     return Place.fromJson(response);
   }
 
   // Get all places
   Future<List<Place>> getAllPlaces() async {
     final response = await _api.get('/api/places');
-    return (response['data'] as List)
-        .map((json) => Place.fromJson(json))
-        .toList();
+    final List<dynamic> data = response['data'] as List;
+    return data.asMap().entries.map((entry) {
+      final json = entry.value;
+      if (json is Map<String, dynamic>) {
+        return Place.fromJson(json);
+      }
+      throw FormatException('Invalid place data format at index ${entry.key}');
+    }).toList();
   }
 
   // Get place by ID
@@ -87,17 +95,25 @@ class PlaceService {
   // Get places by category
   Future<List<Place>> getPlacesByCategory(int categoryId) async {
     final response = await _api.get('/api/places?category_id=$categoryId');
-    return (response['data'] as List)
-        .map((json) => Place.fromJson(json))
-        .toList();
+    final List<dynamic> data = response['data'] as List;
+    return data.map((json) {
+      if (json is Map<String, dynamic>) {
+        return Place.fromJson(json);
+      }
+      throw FormatException('Invalid place data format');
+    }).toList();
   }
 
   // Search places
   Future<List<Place>> searchPlaces(String query) async {
     final response = await _api.get('/api/places/search?q=$query');
-    return (response['data'] as List)
-        .map((json) => Place.fromJson(json))
-        .toList();
+    final List<dynamic> data = response['data'] as List;
+    return data.map((json) {
+      if (json is Map<String, dynamic>) {
+        return Place.fromJson(json);
+      }
+      throw FormatException('Invalid place data format');
+    }).toList();
   }
 
   // Get nearby places
@@ -108,8 +124,12 @@ class PlaceService {
   }) async {
     final response = await _api.get(
         '/api/places/nearby?latitude=$latitude&longitude=$longitude&radius=$radiusInKm');
-    return (response['data'] as List)
-        .map((json) => Place.fromJson(json))
-        .toList();
+    final List<dynamic> data = response['data'] as List;
+    return data.map((json) {
+      if (json is Map<String, dynamic>) {
+        return Place.fromJson(json);
+      }
+      throw FormatException('Invalid place data format');
+    }).toList();
   }
 }

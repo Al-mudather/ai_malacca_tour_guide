@@ -13,7 +13,7 @@ class CategoryModel {
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      id: json['id'],
+      id: json['id'] is String ? int.parse(json['id']) : json['id'],
       name: json['name'],
       description: json['description'],
       icon: json['icon'],
@@ -45,4 +45,13 @@ class CategoryModel {
 
   @override
   String toString() => name;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is CategoryModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
