@@ -18,6 +18,9 @@ class HomeController extends GetxController {
   final RxString _error = RxString('');
   String get error => _error.value;
 
+  final RxDouble _currentBudget = 0.0.obs;
+  double get currentBudget => _currentBudget.value;
+
   void selectCategory(CategoryModel? category) {
     if (_selectedCategory.value?.id == category?.id)
       return; // Don't reload if same category
@@ -48,6 +51,44 @@ class HomeController extends GetxController {
     } finally {
       _isLoading.value = false;
     }
+  }
+
+  void searchPlacesByBudget(double budget) {
+    _currentBudget.value = budget;
+    _isLoading.value = true;
+    _error.value = '';
+
+    try {
+      // Filter places based on budget
+      final affordablePlaces = _places.where((place) {
+        // If the place is free, include it
+        if (place.isFree) return true;
+        // If the place has a price, check against budget
+        if (place.price != null) {
+          return place.price! <= budget;
+        }
+        // If no price info available, exclude it
+        return false;
+      }).toList();
+
+      if (affordablePlaces.isEmpty) {
+        _error.value =
+            'No destinations found within your budget of MYR ${budget.toStringAsFixed(2)}';
+      }
+
+      _places.value = affordablePlaces;
+    } catch (e) {
+      _error.value = 'Error searching for places: $e';
+    } finally {
+      _isLoading.value = false;
+    }
+  }
+
+  void clearBudgetSearch() {
+    _currentBudget.value = 0.0;
+    _error.value = '';
+    // Reload all places
+    _loadPlaces();
   }
 
   @override

@@ -6,45 +6,21 @@ class LocationHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return const Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(
-              Icons.location_on,
-              color: AppColors.textPrimary,
-              size: 16,
-            ),
-            const SizedBox(width: 4),
-            Text(
-              'Malacca, Malaysia',
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        Icon(
+          Icons.location_on,
+          color: AppColors.textPrimary,
+          size: 16,
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          child: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_none),
+        SizedBox(width: 4),
+        Text(
+          'Malacca, Malaysia',
+          style: TextStyle(
             color: AppColors.textPrimary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

@@ -103,7 +103,7 @@ class ItineraryListItem extends StatelessWidget {
                   left: 16,
                   right: 16,
                   child: Text(
-                    itinerary.title,
+                    itinerary.title ?? itinerary.name,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,

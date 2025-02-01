@@ -170,6 +170,10 @@ class ItineraryController extends GetxController {
         final startDate = DateTime.now();
 
         if (currentChatItinerary != null) {
+          // Get status from chat itinerary or use 'draft' as default
+          final status =
+              (currentChatItinerary?['status'] as String?) ?? 'draft';
+
           return await _itinerariesCrud.createItinerary(
             ItineraryModel(
               userId: userId,
@@ -184,7 +188,7 @@ class ItineraryController extends GetxController {
                   '0'),
               preferences:
                   currentChatItinerary?['preferences'] ?? <String, dynamic>{},
-              status: 'active',
+              status: status, // Now status is a non-nullable String
             ),
           );
         }
@@ -201,7 +205,7 @@ class ItineraryController extends GetxController {
   Future<DayItineraryModel> getOrCreateDayItinerary(
     int itineraryId,
     int dayNumber,
-    String startDate,
+    String? startDate,
   ) async {
     try {
       final days =
@@ -209,12 +213,13 @@ class ItineraryController extends GetxController {
 
       if (days.isEmpty || days.length < dayNumber) {
         final date =
-            DateTime.parse(startDate).add(Duration(days: dayNumber - 1));
+            DateTime.parse(startDate ?? DateTime.now().toIso8601String())
+                .add(Duration(days: dayNumber - 1));
         return await _dayItinerariesCrud.createDayItinerary(
           DayItineraryModel(
             itineraryId: itineraryId,
             dayNumber: dayNumber,
-            date: DateTime.parse(date.toIso8601String()),
+            date: date,
           ),
         );
       }
@@ -303,32 +308,26 @@ class ItineraryController extends GetxController {
     }
   }
 
-  // Future<void> addActivityToTrip(Activity activity, int dayNumber) async {
-  //   try {
-  //     final authController = Get.find<AuthController>();
-  //     if (authController.currentUser.value == null) {
-  //       throw Exception('User not authenticated');
-  //     }
-
-  //     final userId = authController.currentUser.value!.id!;
-  //     final itinerary = await getOrCreateItinerary(userId);
-  //     final dayItinerary = await getOrCreateDayItinerary(
-  //       itinerary.id!,
-  //       dayNumber,
-  //       itinerary.startDate,
-  //     );
-
-  //     await addPlaceToDay(activity, dayItinerary.id!);
-
-  //     // Refresh the current view if needed
-  //     if (currentItinerary.value?.id == itinerary.id) {
-  //       await loadDayPlaces(dayNumber);
-  //     }
-  //   } catch (e) {
-  //     print('Error in addActivityToTrip: $e');
-  //     rethrow;
-  //   }
-  // }
+  Future<void> updateItinerary(ItineraryModel itinerary) async {
+    try {
+      isLoading.value = true;
+      await _itinerariesCrud.updateItinerary(itinerary);
+      await loadUserItineraries();
+      Get.snackbar(
+        'Success',
+        'Itinerary updated successfully',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update itinerary',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   storeItineraryFromChat(Map<String, dynamic> decoded) {
     currentChatItinerary = decoded;

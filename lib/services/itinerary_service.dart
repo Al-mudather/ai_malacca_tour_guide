@@ -17,17 +17,41 @@ class ItineraryService {
     required int totalBudget,
     Map<String, dynamic>? preferences,
   }) async {
-    final response = await _api.post('/api/itineraries/create', {
-      'name': name,
-      'description': description,
-      'user_id': userId,
-      'title': title,
-      'start_date': startDate,
-      'end_date': endDate,
-      'total_budget': totalBudget,
-      if (preferences != null) 'preferences': preferences,
-    });
-    return ItineraryModel.fromJson(response);
+    try {
+      final response = await _api.post('/api/itineraries/create', {
+        'name': name,
+        'description': description,
+        'user_id': userId,
+        'title': title,
+        'start_date': startDate,
+        'end_date': endDate,
+        'total_budget': totalBudget,
+        if (preferences != null) 'preferences': preferences,
+      });
+
+      print('------------  API Response  ------------------------');
+      print(response);
+      print('------------------------------------------------');
+
+      // If response is a Map, use it directly
+      if (response is Map<String, dynamic>) {
+        return ItineraryModel.fromJson(response);
+      }
+
+      // If response has a data field, use that
+      if (response['data'] != null &&
+          response['data'] is Map<String, dynamic>) {
+        return ItineraryModel.fromJson(response['data']);
+      }
+
+      throw Exception('Invalid response format from server');
+    } catch (e) {
+      print('------------  API Error  ------------------------');
+      print('Error in createItinerary: $e');
+      print('Stack trace: ${StackTrace.current}');
+      print('------------------------------------------------');
+      throw Exception('Failed to create itinerary: $e');
+    }
   }
 
   // Get all itineraries

@@ -5,6 +5,7 @@ import 'package:ai_malacca_tour_guide/features/chat/bindings/chat_binding.dart';
 import 'package:ai_malacca_tour_guide/features/chat/view/chat_view.dart';
 import 'package:ai_malacca_tour_guide/features/home/bindings/home_binding.dart';
 import 'package:ai_malacca_tour_guide/features/home/view/home_page.dart';
+import 'package:ai_malacca_tour_guide/features/place/bindings/place_binding.dart';
 import 'package:ai_malacca_tour_guide/features/welcome/view/welcome_view.dart';
 import 'package:ai_malacca_tour_guide/features/itinerary/view/itinerary_view.dart';
 import 'package:ai_malacca_tour_guide/features/itinerary/view/itinerary_details_view.dart';
@@ -21,6 +22,8 @@ import 'package:ai_malacca_tour_guide/features/category_management/view/category
 import 'package:ai_malacca_tour_guide/features/category_management/bindings/category_management_binding.dart';
 import 'package:ai_malacca_tour_guide/features/place_management/view/place_management_view.dart';
 import 'package:ai_malacca_tour_guide/features/place_management/bindings/place_management_binding.dart';
+import 'package:ai_malacca_tour_guide/features/place/view/place_details_view.dart';
+import 'package:ai_malacca_tour_guide/models/place_model.dart';
 
 class AppPages {
   AppPages._();
@@ -92,6 +95,13 @@ class AppPages {
       page: () => const PlaceManagementView(),
       binding: PlaceManagementBinding(),
     ),
+    GetPage(
+      name: Routes.PLACE_DETAILS,
+      page: () => PlaceDetailsView(
+        place: Get.arguments['place'] as Place,
+      ),
+      binding: PlaceBinding(),
+    ),
   ];
 }
 
@@ -110,4 +120,5 @@ abstract class Routes {
   static const CATEGORY_MANAGEMENT = '/category-management';
   static const PLACE_MANAGEMENT = '/place-management';
   static const DATABASE_MANAGEMENT = '/database-management';
+  static const PLACE_DETAILS = '/place/details';
 }
