@@ -29,10 +29,6 @@ class ItineraryService {
         if (preferences != null) 'preferences': preferences,
       });
 
-      print('------------  API Response  ------------------------');
-      print(response);
-      print('------------------------------------------------');
-
       // If response is a Map, use it directly
       if (response is Map<String, dynamic>) {
         return ItineraryModel.fromJson(response);
@@ -46,10 +42,6 @@ class ItineraryService {
 
       throw Exception('Invalid response format from server');
     } catch (e) {
-      print('------------  API Error  ------------------------');
-      print('Error in createItinerary: $e');
-      print('Stack trace: ${StackTrace.current}');
-      print('------------------------------------------------');
       throw Exception('Failed to create itinerary: $e');
     }
   }

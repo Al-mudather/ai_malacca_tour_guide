@@ -36,7 +36,7 @@ class ItineraryCardContent extends StatelessWidget {
       children: [
         Expanded(
           child: Text(
-            itinerary.title,
+            itinerary.name,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -55,7 +55,7 @@ class ItineraryCardContent extends StatelessWidget {
         const Icon(Icons.calendar_today, size: 16),
         const SizedBox(width: 8),
         Text(
-          '${DateFormatter.formatDate(itinerary.startDate)} - ${DateFormatter.formatDate(itinerary.endDate)}',
+          '${DateFormatter.formatDate(itinerary.createdAt ?? '')} - ${DateFormatter.formatDate(itinerary.createdAt ?? '')}',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],

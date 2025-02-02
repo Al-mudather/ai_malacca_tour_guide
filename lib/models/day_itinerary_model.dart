@@ -9,6 +9,8 @@ class DayItineraryModel {
   final ItineraryModel? itinerary;
   final List<PlaceItineraryModel> places;
   final DateTime date;
+  final String? createdAt;
+  final String? updatedAt;
 
   DayItineraryModel({
     this.id,
@@ -16,8 +18,10 @@ class DayItineraryModel {
     required this.itineraryId,
     this.itinerary,
     this.places = const [],
-    required this.date,
-  });
+    DateTime? date,
+    this.createdAt,
+    this.updatedAt,
+  }) : date = date ?? DateTime.now();
 
   factory DayItineraryModel.fromJson(Map<String, dynamic> json) {
     return DayItineraryModel(
@@ -32,7 +36,13 @@ class DayItineraryModel {
               .map((place) => PlaceItineraryModel.fromJson(place))
               .toList()
           : [],
-      date: DateTime.parse(json['date'] as String),
+      date: json['date'] != null
+          ? DateTime.parse(json['date'])
+          : json['createdAt'] != null
+              ? DateTime.parse(json['createdAt'])
+              : DateTime.now(),
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
     );
   }
 
@@ -42,6 +52,8 @@ class DayItineraryModel {
       'day_number': dayNumber,
       'itinerary_id': itineraryId,
       'date': date.toIso8601String(),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
     };
   }
 
@@ -50,6 +62,8 @@ class DayItineraryModel {
       'id': id,
       'itinerary_id': itineraryId,
       'date': date.toIso8601String(),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
     };
   }
 
@@ -66,7 +80,13 @@ class DayItineraryModel {
               .map((place) => PlaceItineraryModel.fromJson(place))
               .toList()
           : [],
-      date: DateTime.parse(map['date'] as String),
+      date: map['date'] != null
+          ? DateTime.parse(map['date'])
+          : map['createdAt'] != null
+              ? DateTime.parse(map['createdAt'])
+              : DateTime.now(),
+      createdAt: map['createdAt'],
+      updatedAt: map['updatedAt'],
     );
   }
 
@@ -77,6 +97,8 @@ class DayItineraryModel {
     ItineraryModel? itinerary,
     List<PlaceItineraryModel>? places,
     DateTime? date,
+    String? createdAt,
+    String? updatedAt,
   }) {
     return DayItineraryModel(
       id: id ?? this.id,
@@ -85,6 +107,8 @@ class DayItineraryModel {
       itinerary: itinerary ?? this.itinerary,
       places: places ?? this.places,
       date: date ?? this.date,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 

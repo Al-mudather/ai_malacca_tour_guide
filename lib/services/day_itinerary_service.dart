@@ -20,8 +20,8 @@ class DayItineraryService {
 
   // Get all day itineraries for an itinerary
   Future<List<DayItineraryModel>> getDayItineraries(int itineraryId) async {
-    final response =
-        await _api.get('/api/day-itineraries?itinerary_id=$itineraryId');
+    final response = await _api.get('/api/day-itineraries/$itineraryId');
+
     return (response['data'] as List)
         .map((json) => DayItineraryModel.fromJson(json))
         .toList();
@@ -55,7 +55,7 @@ class DayItineraryService {
   Future<List<DayItineraryModel>> getDayItinerariesWithPlaces(
       int itineraryId) async {
     final response = await _api
-        .get('/api/day-itineraries?itinerary_id=$itineraryId&include=places');
+        .get('/api/day-itineraries/itinerary_id/$itineraryId?include=places');
     return (response['data'] as List)
         .map((json) => DayItineraryModel.fromJson(json))
         .toList();

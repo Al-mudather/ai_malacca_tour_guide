@@ -7,6 +7,8 @@ import 'package:ai_malacca_tour_guide/features/auth/controllers/auth_controller.
 import 'package:ai_malacca_tour_guide/services/place_itinerary_service.dart';
 import 'package:ai_malacca_tour_guide/services/day_itinerary_service.dart';
 import 'package:ai_malacca_tour_guide/features/place/widgets/create_itinerary_dialog.dart';
+import 'package:ai_malacca_tour_guide/features/place/widgets/select_itinerary_dialog.dart';
+import 'package:ai_malacca_tour_guide/features/place/widgets/select_day_dialog.dart';
 
 class PlaceDetailsController extends GetxController {
   final _itineraryService = Get.find<ItineraryService>();
@@ -148,27 +150,12 @@ class PlaceDetailsController extends GetxController {
 
   Future<void> _showSelectItineraryDialog(Place place) async {
     final selectedItinerary = await Get.dialog<ItineraryModel>(
-      AlertDialog(
-        title: const Text('Select Itinerary'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...itineraries.map(
-              (itinerary) => ListTile(
-                title: Text(itinerary.name),
-                subtitle: Text('${itinerary.days.length} days'),
-                onTap: () => Get.back(result: itinerary),
-              ),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('Create New Itinerary'),
-              onTap: () => Get.back(result: null),
-            ),
-          ],
-        ),
+      SelectItineraryDialog(
+        itineraries: itineraries,
+        onCreateNew: () => Get.back(result: null),
+        onSelect: (itinerary) => Get.back(result: itinerary),
       ),
+      barrierDismissible: false,
     );
 
     if (selectedItinerary == null) {
@@ -183,34 +170,28 @@ class PlaceDetailsController extends GetxController {
   Future<void> _showDaySelectionDialog(
       ItineraryModel itinerary, Place place) async {
     final result = await Get.dialog<Map<String, dynamic>>(
-      AlertDialog(
-        title: const Text('Select Day'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ...List.generate(
-              itinerary.days.length,
-              (index) => ListTile(
-                title: Text('Day ${index + 1}'),
-                onTap: () => Get.back(
-                  result: {'isNewDay': false, 'dayNumber': index + 1},
-                ),
-              ),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('Add New Day'),
-              onTap: () => Get.back(
-                result: {
-                  'isNewDay': true,
-                  'dayNumber': itinerary.days.length + 1
-                },
-              ),
-            ),
-          ],
+      SelectDayDialog(
+        itineraryId: itinerary.id!,
+        onSelectDay: (dayNumber) => Get.back(
+          result: {'isNewDay': false, 'dayNumber': dayNumber},
         ),
+        onAddNewDay: () async {
+          // Get the current days to calculate the new day number
+          final currentDays =
+              await _dayItineraryService.getDayItineraries(itinerary.id!);
+          // Calculate new day number based on maximum existing day number
+          final newDayNumber = currentDays.isEmpty
+              ? 1
+              : currentDays
+                      .map((d) => d.dayNumber)
+                      .reduce((max, dayNum) => dayNum > max ? dayNum : max) +
+                  1;
+          Get.back(
+            result: {'isNewDay': true, 'dayNumber': newDayNumber},
+          );
+        },
       ),
+      barrierDismissible: false,
     );
 
     if (result != null) {
@@ -255,6 +236,8 @@ class PlaceDetailsController extends GetxController {
           'Success',
           'Place added to itinerary',
           snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
         );
       } catch (e) {
         Get.snackbar(
