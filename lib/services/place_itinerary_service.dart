@@ -24,16 +24,27 @@ class PlaceItineraryService {
 
   // Get all place itineraries for a day
   Future<List<PlaceItineraryModel>> getPlaceItineraries(int dayId) async {
-    final response = await _api.get('/api/place-itineraries?day_id=$dayId');
-    return (response['data'] as List)
-        .map((json) => PlaceItineraryModel.fromJson(json))
-        .toList();
+    final response = await _api.get('/api/place-itineraries/$dayId');
+    // The response already includes Place details
+    return (response['data'] as List).map((json) {
+      // Add the Place data to the root level for proper parsing
+      return PlaceItineraryModel.fromJson({
+        ...json,
+        'place': json['Place'], // Map the nested Place data
+        'day': json['DayItineraryModel'], // Map the nested Day data
+      });
+    }).toList();
   }
 
   // Get place itinerary by ID
   Future<PlaceItineraryModel> getPlaceItineraryById(int id) async {
-    final response = await _api.get('/api/place-itineraries/$id');
-    return PlaceItineraryModel.fromJson(response);
+    final response = await _api.get('/api/place-itineraries/place/$id');
+    // Add the Place data to the root level for proper parsing
+    return PlaceItineraryModel.fromJson({
+      ...response,
+      'place': response['Place'],
+      'day': response['DayItineraryModel'],
+    });
   }
 
   // Update place itinerary
@@ -76,8 +87,12 @@ class PlaceItineraryService {
       'places': newOrder,
     });
 
-    return (response['data'] as List)
-        .map((json) => PlaceItineraryModel.fromJson(json))
-        .toList();
+    return (response['data'] as List).map((json) {
+      return PlaceItineraryModel.fromJson({
+        ...json,
+        'place': json['Place'],
+        'day': json['DayItineraryModel'],
+      });
+    }).toList();
   }
 }

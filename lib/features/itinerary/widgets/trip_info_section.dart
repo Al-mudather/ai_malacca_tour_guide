@@ -12,12 +12,12 @@ class TripInfoSection extends GetView<ItineraryController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          StatusBadge(status: controller.currentItinerary.value!.status),
-          const SizedBox(height: 16),
-          const DateRangeInfo(),
-          const SizedBox(height: 8),
-          const BudgetInfo(),
-          const SizedBox(height: 24),
+          // StatusBadge(status: controller.currentItinerary.value!.status),
+          // const SizedBox(height: 16),
+          // const DateRangeInfo(),
+          // const SizedBox(height: 8),
+          // const BudgetInfo(),
+          // const SizedBox(height: 24),
           Text(
             'Daily Schedule',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(

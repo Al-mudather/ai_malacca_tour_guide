@@ -80,6 +80,30 @@ class AccountView extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
+                  // Show settings section only for admin users
+                  Obx(() {
+                    final user = authController.currentUser.value;
+
+                    if (user?.isAdmin == true) {
+                      return Column(
+                        children: [
+                          SettingsSection(
+                            title: 'App Settings',
+                            children: [
+                              SettingsTile(
+                                icon: Icons.settings_outlined,
+                                title: 'Settings',
+                                subtitle: 'App preferences and configurations',
+                                onTap: () => Get.toNamed(Routes.SETTINGS),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(

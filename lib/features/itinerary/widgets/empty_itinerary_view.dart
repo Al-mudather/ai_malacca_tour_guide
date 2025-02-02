@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../config/app_colors.dart';
 
 class EmptyItineraryView extends StatelessWidget {
-  final VoidCallback onCreatePressed;
-
-  const EmptyItineraryView({
-    Key? key,
-    required this.onCreatePressed,
-  }) : super(key: key);
+  const EmptyItineraryView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,33 +11,29 @@ class EmptyItineraryView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.hiking_outlined,
+            Icons.map_outlined,
             size: 64,
-            color: Colors.grey.shade400,
+            color: AppColors.primary.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
-            'No trips planned yet',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.grey.shade700,
-                ),
+            'No Itineraries',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 8),
-          Text(
-            'Start planning your next adventure',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey,
-                ),
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: onCreatePressed,
-            icon: const Icon(Icons.add),
-            label: const Text('Create New Trip'),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Text(
+              'Your planned trips will appear here',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: AppColors.textSecondary,
+                height: 1.5,
               ),
             ),
           ),

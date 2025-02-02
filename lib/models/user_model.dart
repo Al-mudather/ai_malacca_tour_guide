@@ -4,6 +4,7 @@ class UserModel {
   final String? password;
   final String? name;
   final int? defaultBudget;
+  final bool isAdmin;
 
   UserModel({
     this.id,
@@ -11,6 +12,7 @@ class UserModel {
     this.password,
     this.name,
     this.defaultBudget,
+    this.isAdmin = false,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -21,6 +23,7 @@ class UserModel {
         password: map['password'] as String?,
         name: map['full_name'] as String?,
         defaultBudget: map['default_budget'] as int?,
+        isAdmin: map['is_admin'],
       );
     } catch (e) {
       print('Received map data: $map');
@@ -35,6 +38,7 @@ class UserModel {
       if (password != null) 'password': password,
       'name': name,
       'default_budget': defaultBudget,
+      'is_admin': isAdmin,
     };
   }
 
@@ -44,6 +48,7 @@ class UserModel {
     String? password,
     String? name,
     int? defaultBudget,
+    String? role,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -51,6 +56,7 @@ class UserModel {
       password: password ?? this.password,
       name: name ?? this.name,
       defaultBudget: defaultBudget ?? this.defaultBudget,
+      isAdmin: isAdmin,
     );
   }
 }

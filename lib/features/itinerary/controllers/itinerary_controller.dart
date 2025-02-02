@@ -3,17 +3,19 @@ import '../../../models/itinerary_model.dart';
 import '../../../models/place_itinerary_model.dart';
 import '../../../models/day_itinerary_model.dart';
 import '../../../models/chat_response_model.dart';
-import '../../../database/crud/itineraries_crud.dart';
-import '../../../database/crud/place_itineraries_crud.dart';
-import '../../../database/crud/day_itineraries_crud.dart';
+import '../../../models/place_model.dart';
+import '../../../services/itinerary_service.dart';
+import '../../../services/day_itinerary_service.dart';
+import '../../../services/place_itinerary_service.dart';
 import '../../../features/auth/controllers/auth_controller.dart';
 import '../../../utils/place_images.dart';
 import 'dart:convert';
 
 class ItineraryController extends GetxController {
-  final _itinerariesCrud = Get.find<ItinerariesCRUD>();
-  final _placeItinerariesCrud = Get.find<PlaceItinerariesCRUD>();
-  final _dayItinerariesCrud = Get.find<DayItinerariesCRUD>();
+  final _itineraryService = ItineraryService();
+  final _dayItineraryService = DayItineraryService();
+  final _placeItineraryService = PlaceItineraryService();
+  final _authController = Get.find<AuthController>();
 
   final currentItinerary = Rx<ItineraryModel?>(null);
   final currentDayPlaces = <PlaceItineraryModel>[].obs;
@@ -37,7 +39,13 @@ class ItineraryController extends GetxController {
   Future<void> loadUserItineraries() async {
     try {
       isLoading.value = true;
-      final itineraries = await _itinerariesCrud.getAllItineraries();
+      if (_authController.currentUser.value?.id == null) {
+        throw Exception('User not logged in');
+      }
+
+      final itineraries = await _itineraryService.getUserItineraries(
+        _authController.currentUser.value!.id!,
+      );
       userItineraries.value = itineraries;
     } catch (e) {
       Get.snackbar(
@@ -59,12 +67,7 @@ class ItineraryController extends GetxController {
         return;
       }
 
-      final itinerary = await _itinerariesCrud.getItineraryById(itineraryId);
-      if (itinerary == null) {
-        Get.back();
-        return;
-      }
-
+      final itinerary = await _itineraryService.getItineraryById(itineraryId);
       currentItinerary.value = itinerary;
       await loadDays(itineraryId);
 
@@ -86,9 +89,8 @@ class ItineraryController extends GetxController {
 
   Future<void> loadDays(int itineraryId) async {
     try {
-      final daysData = await _dayItinerariesCrud.getDayItinerariesByItineraryId(
-        itineraryId,
-      );
+      final daysData =
+          await _dayItineraryService.getDayItineraries(itineraryId);
       days.value = daysData;
     } catch (e) {
       Get.snackbar(
@@ -118,7 +120,7 @@ class ItineraryController extends GetxController {
 
       currentDayIndex.value = dayIndex;
       final dayItinerary = days[dayIndex - 1];
-      final places = await _placeItinerariesCrud.getPlaceItinerariesByDayId(
+      final places = await _placeItineraryService.getPlaceItineraries(
         dayItinerary.id!,
       );
       currentDayPlaces.value = places;
@@ -135,7 +137,16 @@ class ItineraryController extends GetxController {
     try {
       if (currentItinerary.value == null) return;
 
-      await _itinerariesCrud.updateItinerary(currentItinerary.value!);
+      await _itineraryService.updateItinerary(
+        id: currentItinerary.value!.id!,
+        name: currentItinerary.value!.name,
+        description: currentItinerary.value!.description,
+        title: currentItinerary.value!.title,
+        startDate: currentItinerary.value!.startDate,
+        endDate: currentItinerary.value!.endDate,
+        totalBudget: currentItinerary.value!.totalBudget,
+        preferences: currentItinerary.value!.preferences,
+      );
       Get.snackbar('Success', 'Itinerary saved successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to save itinerary: $e');
@@ -144,7 +155,7 @@ class ItineraryController extends GetxController {
 
   Future<void> deleteItinerary(int itineraryId) async {
     try {
-      await _itinerariesCrud.deleteItinerary(itineraryId);
+      await _itineraryService.deleteItinerary(itineraryId);
       userItineraries.removeWhere((itinerary) => itinerary.id == itineraryId);
       Get.snackbar(
         'Success',
@@ -164,32 +175,28 @@ class ItineraryController extends GetxController {
   Future<ItineraryModel> getOrCreateItinerary(int userId) async {
     try {
       final userItineraries =
-          await _itinerariesCrud.getItinerariesByUserId(userId);
+          await _itineraryService.getUserItineraries(userId);
 
       if (userItineraries.isEmpty) {
         final startDate = DateTime.now();
 
         if (currentChatItinerary != null) {
-          // Get status from chat itinerary or use 'draft' as default
           final status =
               (currentChatItinerary?['status'] as String?) ?? 'draft';
 
-          return await _itinerariesCrud.createItinerary(
-            ItineraryModel(
-              userId: userId,
-              name: currentChatItinerary?['title'] ?? 'My Malacca Trip',
-              title: currentChatItinerary?['title'] ?? 'My Malacca Trip',
-              startDate: currentChatItinerary?['startDate'] ??
-                  startDate.toIso8601String(),
-              endDate: currentChatItinerary?['endDate'] ??
-                  startDate.toIso8601String(),
-              totalBudget: int.parse(currentChatItinerary?['totalBudget']
-                      .replaceAll(RegExp(r'[^\d]'), '') ??
-                  '0'),
-              preferences:
-                  currentChatItinerary?['preferences'] ?? <String, dynamic>{},
-              status: status, // Now status is a non-nullable String
-            ),
+          return await _itineraryService.createItinerary(
+            name: currentChatItinerary?['title'] ?? 'My Malacca Trip',
+            description: 'Generated from chat',
+            userId: userId,
+            title: currentChatItinerary?['title'] ?? 'My Malacca Trip',
+            startDate: currentChatItinerary?['startDate'] ??
+                startDate.toIso8601String(),
+            endDate:
+                currentChatItinerary?['endDate'] ?? startDate.toIso8601String(),
+            totalBudget: int.parse(currentChatItinerary?['totalBudget']
+                    .replaceAll(RegExp(r'[^\d]'), '') ??
+                '0'),
+            preferences: currentChatItinerary?['preferences'],
           );
         }
 
@@ -208,21 +215,15 @@ class ItineraryController extends GetxController {
     String? startDate,
   ) async {
     try {
-      final days =
-          await _dayItinerariesCrud.getDayItinerariesByItineraryId(itineraryId);
+      final days = await _dayItineraryService.getDayItineraries(itineraryId);
 
       if (days.isEmpty || days.length < dayNumber) {
-        final date =
-            DateTime.parse(startDate ?? DateTime.now().toIso8601String())
-                .add(Duration(days: dayNumber - 1));
-        return await _dayItinerariesCrud.createDayItinerary(
-          DayItineraryModel(
-            itineraryId: itineraryId,
-            dayNumber: dayNumber,
-            date: date,
-          ),
+        return await _dayItineraryService.createDayItinerary(
+          dayNumber: dayNumber,
+          itineraryId: itineraryId,
         );
       }
+
       return days[dayNumber - 1];
     } catch (e) {
       print('Error in getOrCreateDayItinerary: $e');
@@ -230,80 +231,29 @@ class ItineraryController extends GetxController {
     }
   }
 
-  Future<void> addPlaceToDay(Activity activity, int dayItineraryId) async {
+  Future<void> addPlaceToDay(
+    int dayItineraryId,
+    PlaceItineraryModel place,
+  ) async {
     try {
       // Check if place already exists for this day
-      final existingPlaces = await _placeItinerariesCrud
-          .getPlaceItinerariesByDayId(dayItineraryId);
-      final placeExists =
-          existingPlaces.any((place) => place.place == activity.name);
+      final existingPlaces =
+          await _placeItineraryService.getPlaceItineraries(dayItineraryId);
+      final placeExists = existingPlaces
+          .any((existingPlace) => existingPlace.placeId == place.placeId);
 
       if (placeExists) {
-        throw Exception('This place is already added to this day');
+        throw Exception('Place already added to this day');
       }
-      // Get image URL from PlaceImages service
-      final imageUrl = await PlaceImages().getUnsplashImage(activity.name);
 
-      // Extract numeric cost from entrance fee
-      final entranceFee = activity.entranceFee ?? '';
-      final numericCost = entranceFee.replaceAll(RegExp(r'[^0-9]'), '');
-      final cost = numericCost.isEmpty ? 0 : int.tryParse(numericCost) ?? 0;
-
-      final place = PlaceItineraryModel(
+      await _placeItineraryService.createPlaceItinerary(
+        order: place.order,
         dayId: dayItineraryId,
-        placeId: activity.name.hashCode,
-        order: existingPlaces.length + 1,
-        time: activity.duration ?? '00:00',
+        placeId: place.placeId,
+        time: place.time,
       );
-
-      await _placeItinerariesCrud.createPlaceItinerary(place);
     } catch (e) {
       print('Error in addPlaceToDay: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> addActivityToTrip(Activity activity, int dayNumber) async {
-    try {
-      final authController = Get.find<AuthController>();
-      if (authController.currentUser.value == null) {
-        throw Exception('User not authenticated');
-      }
-
-      final userId = authController.currentUser.value!.id!;
-      final itinerary = await getOrCreateItinerary(userId);
-      final dayItinerary = await getOrCreateDayItinerary(
-        itinerary.id!,
-        dayNumber,
-        itinerary.startDate,
-      );
-
-      try {
-        await addPlaceToDay(activity, dayItinerary.id!);
-
-        // Refresh the current view if needed
-        if (currentItinerary.value?.id == itinerary.id) {
-          await loadDayPlaces(dayNumber);
-        }
-
-        // Get.snackbar(
-        //   'Success',
-        //   'Place added successfully',
-        //   snackPosition: SnackPosition.BOTTOM,
-        // );
-      } catch (e) {
-        if (e.toString().contains('already added')) {
-          Get.snackbar(
-            'Error',
-            '${activity.name} is already added to this day',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        } else {
-          rethrow;
-        }
-      }
-    } catch (e) {
-      print('Error in addActivityToTrip: $e');
       rethrow;
     }
   }
@@ -311,7 +261,16 @@ class ItineraryController extends GetxController {
   Future<void> updateItinerary(ItineraryModel itinerary) async {
     try {
       isLoading.value = true;
-      await _itinerariesCrud.updateItinerary(itinerary);
+      await _itineraryService.updateItinerary(
+        id: itinerary.id!,
+        name: itinerary.name,
+        description: itinerary.description,
+        title: itinerary.title,
+        startDate: itinerary.startDate,
+        endDate: itinerary.endDate,
+        totalBudget: itinerary.totalBudget,
+        preferences: itinerary.preferences,
+      );
       await loadUserItineraries();
       Get.snackbar(
         'Success',
@@ -332,5 +291,78 @@ class ItineraryController extends GetxController {
   storeItineraryFromChat(Map<String, dynamic> decoded) {
     currentChatItinerary = decoded;
     print('Stored chat itinerary data');
+  }
+
+  Future<void> addActivityToTrip(Activity activity, int dayNumber) async {
+    try {
+      if (_authController.currentUser.value == null) {
+        throw Exception('User not authenticated');
+      }
+
+      final userId = _authController.currentUser.value!.id!;
+      final itinerary = await getOrCreateItinerary(userId);
+      final dayItinerary = await getOrCreateDayItinerary(
+        itinerary.id!,
+        dayNumber,
+        itinerary.startDate,
+      );
+
+      try {
+        // Get existing places to determine the order
+        final existingPlaces =
+            await _placeItineraryService.getPlaceItineraries(dayItinerary.id!);
+
+        // Extract location data
+        final location = activity.location ?? {'lat': 0.0, 'lng': 0.0};
+        final latitude = (location['lat'] as num?)?.toDouble() ?? 0.0;
+        final longitude = (location['lng'] as num?)?.toDouble() ?? 0.0;
+
+        // Create a Place model from the activity
+        final place = Place(
+          id: activity.name.hashCode,
+          name: activity.name,
+          location: 'Malacca', // Default location
+          latitude: latitude,
+          longitude: longitude,
+          openingDuration: activity.duration ?? '1:00',
+          isFree: activity.entranceFee == null ||
+              activity.entranceFee!.toLowerCase().contains('free'),
+          price: double.tryParse(
+              activity.entranceFee?.replaceAll(RegExp(r'[^\d.]'), '') ?? '0'),
+          description: activity.description,
+          imageUrl: activity.imageUrl,
+          categoryId: 1, // Default category
+        );
+
+        // Create a PlaceItineraryModel
+        final placeItinerary = PlaceItineraryModel(
+          dayId: dayItinerary.id!,
+          placeId: place.id!,
+          order: existingPlaces.length + 1,
+          time: activity.duration ?? '1:00',
+          place: place,
+        );
+
+        await addPlaceToDay(dayItinerary.id!, placeItinerary);
+
+        // Refresh the current view if needed
+        if (currentItinerary.value?.id == itinerary.id) {
+          await loadDayPlaces(dayNumber);
+        }
+      } catch (e) {
+        if (e.toString().contains('already added')) {
+          Get.snackbar(
+            'Error',
+            '${activity.name} is already added to this day',
+            snackPosition: SnackPosition.BOTTOM,
+          );
+        } else {
+          rethrow;
+        }
+      }
+    } catch (e) {
+      print('Error in addActivityToTrip: $e');
+      rethrow;
+    }
   }
 }

@@ -29,17 +29,11 @@ class _HomeViewState extends State<HomeView> {
     switch (index) {
       case 0: // Home
         break;
-      case 1: // Chat/New Itinerary
-        Get.toNamed(Routes.CHAT);
-        break;
-      case 2: // Itinerary List
+      case 1: // Itinerary List
         Get.toNamed(Routes.ITINERARY);
         break;
-      case 3: // Account
+      case 2: // Account
         Get.to(() => const AccountView());
-        break;
-      case 4: // Settings
-        Get.toNamed(Routes.SETTINGS);
         break;
     }
   }
@@ -48,31 +42,31 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: const SafeArea(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: EdgeInsets.all(16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     Expanded(child: LocationHeader()),
                     SizedBox(width: 16),
                     PlannerWidget(),
                   ],
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: SearchBarWidget(),
-              ),
-              const SizedBox(height: 24),
-              const CategorySection(),
-              const SizedBox(height: 24),
-              const DestinationsSection(),
-              const SizedBox(height: 24), // Add bottom padding
+              // Padding(
+              //   padding: EdgeInsets.symmetric(horizontal: 16.0),
+              //   child: SearchBarWidget(),
+              // ),
+              SizedBox(height: 24),
+              CategorySection(),
+              SizedBox(height: 24),
+              DestinationsSection(),
+              SizedBox(height: 24), // Add bottom padding
             ],
           ),
         ),

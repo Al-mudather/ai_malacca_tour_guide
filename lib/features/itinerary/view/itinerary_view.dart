@@ -1,94 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/itinerary_controller.dart';
-import '../widgets/itinerary_app_bar.dart';
 import '../widgets/empty_itinerary_view.dart';
-import '../widgets/itinerary_list_item.dart';
+import '../widgets/itinerary_list_card.dart';
+import '../widgets/delete_itinerary_dialog.dart';
+import '../../../config/app_colors.dart';
 
 class ItineraryView extends GetView<ItineraryController> {
   ItineraryView({super.key}) {
     controller.loadUserItineraries();
   }
 
+  void _handleDelete(BuildContext context, int itineraryId) {
+    Get.dialog(
+      DeleteItineraryDialog(
+        onConfirm: () => controller.deleteItinerary(itineraryId),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: RefreshIndicator(
-        onRefresh: () => controller.loadUserItineraries(),
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: const Text(
+          'Your Itineraries',
+          style: TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-          slivers: [
-            ItineraryAppBar(onAddPressed: () {}),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Your Itineraries',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Discover and explore your planned trips',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onBackground
-                                .withOpacity(0.7),
-                          ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Obx(() {
-              if (controller.isLoading.value) {
-                return const SliverFillRemaining(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-
-              if (controller.userItineraries.isEmpty) {
-                return const SliverFillRemaining(
-                  child: Center(
-                    child: Text('No itineraries found'),
-                  ),
-                );
-              }
-
-              return SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final itinerary = controller.userItineraries[index];
-                      return AnimatedOpacity(
-                        duration: Duration(milliseconds: 300 + (index * 100)),
-                        opacity: 1.0,
-                        child: ItineraryListItem(itinerary: itinerary),
-                      );
-                    },
-                    childCount: controller.userItineraries.length,
-                  ),
-                ),
-              );
-            }),
-            const SliverPadding(padding: EdgeInsets.only(bottom: 20)),
-          ],
         ),
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => controller.loadUserItineraries(),
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (controller.userItineraries.isEmpty) {
+            return const EmptyItineraryView();
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: controller.userItineraries.length,
+            itemBuilder: (context, index) {
+              final itinerary = controller.userItineraries[index];
+              return ItineraryListCard(
+                itinerary: itinerary,
+                onDelete: (id) => _handleDelete(context, id),
+              );
+            },
+          );
+        }),
       ),
     );
   }

@@ -49,6 +49,10 @@ class UserService {
       'password': password,
     });
 
+    print('----------  response ----------------');
+    print(response);
+    print('------------ response --------------');
+
     final user = UserModel.fromMap(response['user']);
     await _saveAuthData(response['token'], user);
     return user;

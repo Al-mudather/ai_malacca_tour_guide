@@ -28,14 +28,11 @@ class HomeBottomNav extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           height: 80,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
-              _buildNavItem(2, Icons.map_outlined, Icons.map, 'Itinerary'),
-              _buildAddButton(),
-              _buildNavItem(3, Icons.person_outline, Icons.person, 'Account'),
-              _buildNavItem(
-                  4, Icons.settings_outlined, Icons.settings, 'Settings'),
+              _buildNavItem(1, Icons.map_outlined, Icons.map, 'Itinerary'),
+              _buildNavItem(2, Icons.person_outline, Icons.person, 'Account'),
             ],
           ),
         ),
@@ -66,36 +63,6 @@ class HomeBottomNav extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildAddButton() {
-    return GestureDetector(
-      onTap: () => onItemTapped(1),
-      child: Container(
-        height: 56,
-        width: 56,
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Colors.blue, Colors.lightBlue],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(28),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 32,
-        ),
       ),
     );
   }
