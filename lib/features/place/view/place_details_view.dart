@@ -94,7 +94,8 @@ class PlaceDetailsView extends StatelessWidget {
       pinned: true,
       flexibleSpace: FlexibleSpaceBar(
         background: Image.network(
-          place.imageUrl ?? 'https://via.placeholder.com/400',
+          "http://localhost:5000${place.imageUrl}" ??
+              'https://via.placeholder.com/400',
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Image.asset(

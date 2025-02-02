@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../models/place_model.dart';
 import '../../../models/category_model.dart';
 import '../../../services/place_service.dart';
@@ -29,11 +31,12 @@ class _EditPlaceDialogState extends State<EditPlaceDialog> {
   late final TextEditingController _openingDurationController;
   late final TextEditingController _priceController;
   late final TextEditingController _descriptionController;
-  late final TextEditingController _imageUrlController;
 
   CategoryModel? _selectedCategory;
   bool _isFree = false;
   bool _isLoading = false;
+  File? _selectedImage;
+  final _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -50,8 +53,6 @@ class _EditPlaceDialogState extends State<EditPlaceDialog> {
         TextEditingController(text: widget.place.price?.toString() ?? '');
     _descriptionController =
         TextEditingController(text: widget.place.description);
-    _imageUrlController =
-        TextEditingController(text: widget.place.imageUrl ?? '');
     _selectedCategory = widget.place.category;
     _isFree = widget.place.isFree;
   }
@@ -65,29 +66,64 @@ class _EditPlaceDialogState extends State<EditPlaceDialog> {
     _openingDurationController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        await widget.placeService.updatePlace(
-          id: widget.place.id!,
-          name: _nameController.text,
-          location: _locationController.text,
-          latitude: double.parse(_latitudeController.text),
-          longitude: double.parse(_longitudeController.text),
-          openingDuration: _openingDurationController.text,
-          isFree: _isFree,
-          price: _isFree ? null : double.tryParse(_priceController.text),
-          description: _descriptionController.text,
-          imageUrl: _imageUrlController.text.isEmpty
-              ? null
-              : _imageUrlController.text,
-          categoryId: _selectedCategory!.id!,
-        );
+        if (_selectedImage != null) {
+          // If a new image is selected, use updatePlaceWithImage
+          await widget.placeService.updatePlaceWithImage(
+            id: widget.place.id!,
+            name: _nameController.text,
+            location: _locationController.text,
+            latitude: double.parse(_latitudeController.text),
+            longitude: double.parse(_longitudeController.text),
+            openingDuration: _openingDurationController.text,
+            isFree: _isFree,
+            price: _isFree ? null : double.tryParse(_priceController.text),
+            description: _descriptionController.text,
+            imagePath: _selectedImage!.path,
+            categoryId: _selectedCategory!.id!,
+          );
+        } else {
+          // If no new image is selected, use regular update
+          await widget.placeService.updatePlace(
+            id: widget.place.id!,
+            name: _nameController.text,
+            location: _locationController.text,
+            latitude: double.parse(_latitudeController.text),
+            longitude: double.parse(_longitudeController.text),
+            openingDuration: _openingDurationController.text,
+            isFree: _isFree,
+            price: _isFree ? null : double.tryParse(_priceController.text),
+            description: _descriptionController.text,
+            categoryId: _selectedCategory!.id!,
+          );
+        }
         Get.back(result: true);
         Get.snackbar(
           'Success',
@@ -460,14 +496,82 @@ class _EditPlaceDialogState extends State<EditPlaceDialog> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _imageUrlController,
-                        decoration: InputDecoration(
-                          labelText: 'Image URL (Optional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.textSecondary.withOpacity(0.1),
                           ),
-                          prefixIcon: const Icon(Icons.image_outlined),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Place Image',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_selectedImage != null) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  _selectedImage!,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ] else if (widget.place.imageUrl != null) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  widget.place.imageUrl!.startsWith('/')
+                                      ? 'http://localhost:5000${widget.place.imageUrl}'
+                                      : widget.place.imageUrl!,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            ElevatedButton.icon(
+                              onPressed: _isLoading ? null : _pickImage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.image_outlined,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                (_selectedImage != null ||
+                                        widget.place.imageUrl != null)
+                                    ? 'Change Image'
+                                    : 'Select Image',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

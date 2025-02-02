@@ -57,13 +57,13 @@ class _WelcomeViewState extends State<WelcomeView> {
                       child: const Row(
                         children: [
                           Icon(
-                            Icons.travel_explore,
+                            Icons.location_city,
                             color: Colors.white,
                             size: 24,
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'AI TRAVEL',
+                            'MALACCA GUIDE',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -83,7 +83,7 @@ class _WelcomeViewState extends State<WelcomeView> {
                 ),
                 const SizedBox(height: 24),
                 const Text(
-                  'Discover Your Perfect Trip with\nAI-Powered Planning',
+                  'Experience the Magic\nof Historic Malacca',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -99,8 +99,8 @@ class _WelcomeViewState extends State<WelcomeView> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Effortlessly create personalized itineraries tailored to your preferences. Let our intelligent assistant handle the details, so you can focus on exploring the world.',
+                const Text(
+                  'Your complete guide to exploring Malacca\'s rich heritage, stunning architecture, and delicious local cuisine. Start your journey through Malaysia\'s most historic city.',
                   style: TextStyle(
                     fontSize: 16,
                     color: AppColors.secondary,

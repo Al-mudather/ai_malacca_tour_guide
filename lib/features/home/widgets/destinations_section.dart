@@ -96,14 +96,7 @@ class DestinationsSection extends StatelessWidget {
               itemCount: homeController.places.length,
               itemBuilder: (context, index) {
                 final place = homeController.places[index];
-                return DestinationCard(
-                  name: place.name,
-                  location: place.location,
-                  rating:
-                      '4.5', // You might want to add a rating field to your Place model
-                  imagePath:
-                      place.imageUrl ?? 'assets/images/default_place.jpg',
-                );
+                return DestinationCard(place: place);
               },
             );
           }),

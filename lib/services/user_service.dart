@@ -12,7 +12,13 @@ class UserService {
 
   UserService({ApiService? api, required SharedPreferences prefs})
       : _api = api ?? ApiService(),
-        _prefs = prefs;
+        _prefs = prefs {
+    // Set token if it exists
+    final token = this.token;
+    if (token != null) {
+      _api.updateToken(token);
+    }
+  }
 
   // Register a new user
   Future<UserModel> register({
@@ -49,10 +55,6 @@ class UserService {
       'password': password,
     });
 
-    print('----------  response ----------------');
-    print(response);
-    print('------------ response --------------');
-
     final user = UserModel.fromMap(response['user']);
     await _saveAuthData(response['token'], user);
     return user;
@@ -78,10 +80,36 @@ class UserService {
       if (phoneNumber != null) 'phone_number': phoneNumber,
     };
 
-    final response = await _api.put('/api/auth/profile/update', data);
-    final user = UserModel.fromMap(response);
-    await _saveUser(user);
-    return user;
+    try {
+      final response = await _api.put('/api/auth/profile/update', data);
+
+      // Create updated user model
+      final updatedUser = UserModel.fromMap(response);
+
+      // Get the current stored user
+      final currentStoredUser = currentUser;
+      if (currentStoredUser != null) {
+        // Merge the updated data with existing data to ensure we don't lose any fields
+        final mergedUser = UserModel(
+          id: updatedUser.id ?? currentStoredUser.id,
+          email: updatedUser.email ?? currentStoredUser.email,
+          name: updatedUser.name ?? currentStoredUser.name,
+          password: currentStoredUser.password, // Keep the existing password
+          isAdmin: updatedUser.isAdmin ?? currentStoredUser.isAdmin,
+        );
+
+        // Save the merged user data
+        await _saveUser(mergedUser);
+        return mergedUser;
+      }
+
+      // If no current user exists, just save the updated user
+      await _saveUser(updatedUser);
+      return updatedUser;
+    } catch (e) {
+      print('Error updating profile: $e');
+      rethrow;
+    }
   }
 
   // Change password
@@ -192,6 +220,7 @@ class UserService {
   // Private methods
   Future<void> _saveAuthData(String token, UserModel user) async {
     await _prefs.setString(_tokenKey, token);
+    _api.updateToken(token);
     await _saveUser(user);
   }
 

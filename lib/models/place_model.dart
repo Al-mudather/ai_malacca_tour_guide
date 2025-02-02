@@ -37,18 +37,26 @@ class Place {
       id: json['id'] is String ? int.parse(json['id']) : json['id'],
       name: json['name']?.toString() ?? '',
       location: json['location']?.toString() ?? '',
-      latitude: json['latitude']?.toDouble() ?? 0.0,
-      longitude: json['longitude']?.toDouble() ?? 0.0,
+      latitude: json['latitude'] is String
+          ? double.parse(json['latitude'])
+          : json['latitude']?.toDouble() ?? 0.0,
+      longitude: json['longitude'] is String
+          ? double.parse(json['longitude'])
+          : json['longitude']?.toDouble() ?? 0.0,
       openingDuration: json['opening_duration']?.toString() ?? '',
       isFree: json['is_free'] ?? false,
-      price: json['price']?.toDouble(),
+      price: json['price'] != null
+          ? (json['price'] is String
+              ? double.parse(json['price'])
+              : json['price'].toDouble())
+          : null,
       description: json['description']?.toString() ?? '',
       imageUrl: json['image_url']?.toString(),
       categoryId: json['category_id'] is String
           ? int.parse(json['category_id'])
           : (json['category_id'] ?? 0),
-      category: json['Category'] != null
-          ? CategoryModel.fromJson(json['Category'])
+      category: json['category'] != null
+          ? CategoryModel.fromJson(json['category'])
           : null,
     );
   }

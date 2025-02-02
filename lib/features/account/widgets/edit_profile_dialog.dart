@@ -23,6 +23,10 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
   @override
   void initState() {
+    print('-------   widget.user-------------------');
+    print(widget.user.name);
+    print(widget.user.email);
+    print('---------- widget.user ----------------');
     super.initState();
     _nameController = TextEditingController(text: widget.user.name);
   }
@@ -40,6 +44,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
 
     try {
       final userService = Get.find<UserService>();
+
       await userService.updateProfile(
         fullName: _nameController.text.trim(),
       );
@@ -83,15 +88,15 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   children: [
                     Icon(
                       Icons.edit,
                       color: AppColors.primary,
                       size: 28,
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
+                    SizedBox(width: 12),
+                    Text(
                       'Edit Profile',
                       style: TextStyle(
                         fontSize: 24,

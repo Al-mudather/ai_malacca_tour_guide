@@ -69,6 +69,25 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> uploadFile(
+      String endpoint, String filePath, Map<String, dynamic> fields,
+      {bool isUpdating = false}) async {
+    try {
+      final formData = FormData.fromMap({
+        ...fields,
+        'image': await MultipartFile.fromFile(filePath),
+      });
+
+      final response = isUpdating
+          ? await _dio.put(url + endpoint, data: formData)
+          : await _dio.post(url + endpoint, data: formData);
+      return response.data;
+    } on DioError catch (e) {
+      _handleDioError(e);
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> data) async {
     try {

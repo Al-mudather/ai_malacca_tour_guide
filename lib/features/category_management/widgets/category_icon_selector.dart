@@ -41,12 +41,12 @@ class CategoryIconSelector extends StatefulWidget {
     CategoryIcon(
       name: 'Tourism',
       icon: Icons.tour,
-      code: '0xf05c', // Icons.tour code
+      code: '0xf65e', // Icons.tour code
     ),
     CategoryIcon(
       name: 'Museum',
       icon: Icons.museum,
-      code: '0xf05c', // Icons.museum code
+      code: '0xf426', // Icons.museum code
     ),
     CategoryIcon(
       name: 'Shopping',

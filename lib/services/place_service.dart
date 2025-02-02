@@ -40,6 +40,33 @@ class PlaceService {
     return Place.fromJson(response);
   }
 
+  // Create a new place with image upload
+  Future<Place> createPlaceWithImage({
+    required String name,
+    required String location,
+    required double latitude,
+    required double longitude,
+    required String openingDuration,
+    required bool isFree,
+    double? price,
+    required String description,
+    required String imagePath,
+    required int categoryId,
+  }) async {
+    final response = await _api.uploadFile('/api/places/create', imagePath, {
+      'name': name,
+      'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
+      'opening_duration': openingDuration,
+      'is_free': isFree,
+      if (price != null) 'price': price,
+      'description': description,
+      'category_id': categoryId,
+    });
+    return Place.fromJson(response);
+  }
+
   // Get all places
   Future<List<Place>> getAllPlaces() async {
     final response = await _api.get('/api/places');
@@ -62,9 +89,9 @@ class PlaceService {
         // Add category to the JSON if we found it
         if (categoryId != null && categoryMap.containsKey(categoryId)) {
           final category = categoryMap[categoryId]!;
-          // Use the proper toJson method from CategoryModel
-          json['Category'] = category.toJson();
-          print('Added category to place: ${json['Category']}');
+          // Use lowercase 'category' key to match Place.fromJson
+          json['category'] = category.toJson();
+          print('Added category to place: ${json['category']}');
         } else {
           print('Category not found for id: $categoryId');
         }
@@ -123,6 +150,39 @@ class PlaceService {
     };
 
     final response = await _api.put('/api/places/update/$id', data);
+    return Place.fromJson(response);
+  }
+
+  // Update place with image upload
+  Future<Place> updatePlaceWithImage({
+    required int id,
+    required String name,
+    required String location,
+    required double latitude,
+    required double longitude,
+    required String openingDuration,
+    required bool isFree,
+    double? price,
+    required String description,
+    required String imagePath,
+    required int categoryId,
+  }) async {
+    final response = await _api.uploadFile(
+      '/api/places/update/$id',
+      imagePath,
+      {
+        'name': name,
+        'location': location,
+        'latitude': latitude,
+        'longitude': longitude,
+        'opening_duration': openingDuration,
+        'is_free': isFree,
+        if (price != null) 'price': price,
+        'description': description,
+        'category_id': categoryId,
+      },
+      isUpdating: true, // Set to true for update operations
+    );
     return Place.fromJson(response);
   }
 

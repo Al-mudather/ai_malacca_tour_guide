@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../models/category_model.dart';
 import '../../../services/place_service.dart';
 import '../../../services/category_service.dart';
@@ -26,11 +28,12 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
   final _openingDurationController = TextEditingController();
   final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _imageUrlController = TextEditingController();
 
   CategoryModel? _selectedCategory;
   bool _isFree = false;
   bool _isLoading = false;
+  File? _selectedImage;
+  final _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -44,8 +47,6 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
     _openingDurationController.text = '10AM - 5PM (Closed on Tuesdays)';
     _descriptionController.text =
         'The Majestic Malacca is a restored 1920s Straits Settlement mansion that offers a blend of historic charm and modern luxury. Located in the heart of Malacca City, this 5-star hotel features elegantly furnished rooms and suites, a spa that incorporates Peranakan healing traditions, and a restaurant serving authentic Kristang cuisine.';
-    _imageUrlController.text =
-        'https://www.majesticmalacca.com/images/majestic-malacca.jpg';
   }
 
   @override
@@ -57,15 +58,45 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
     _openingDurationController.dispose();
     _priceController.dispose();
     _descriptionController.dispose();
-    _imageUrlController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to pick image: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
 
   Future<void> _handleSubmit() async {
     if (_formKey.currentState!.validate()) {
+      if (_selectedImage == null) {
+        Get.snackbar(
+          'Error',
+          'Please select an image',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return;
+      }
+
       setState(() => _isLoading = true);
       try {
-        await widget.placeService.createPlace(
+        await widget.placeService.createPlaceWithImage(
           name: _nameController.text,
           location: _locationController.text,
           latitude: double.parse(_latitudeController.text),
@@ -74,9 +105,7 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
           isFree: _isFree,
           price: _isFree ? null : double.tryParse(_priceController.text),
           description: _descriptionController.text,
-          imageUrl: _imageUrlController.text.isEmpty
-              ? null
-              : _imageUrlController.text,
+          imagePath: _selectedImage!.path,
           categoryId: _selectedCategory!.id!,
         );
         Navigator.of(context).pop(true);
@@ -87,9 +116,9 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
           colorText: Colors.white,
         );
       } catch (e) {
-        print('eeeeeeeeeeeeeeeeeeeeeeeeeee');
+        print('-------   error-------------------');
         print(e);
-        print('eeeeeeeeeeeeeeeeeeeeeeeeeee');
+        print('---------- error ----------------');
         Get.snackbar(
           'Error',
           'Failed to add place: $e',
@@ -450,14 +479,68 @@ class _AddPlaceDialogState extends State<AddPlaceDialog> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _imageUrlController,
-                        decoration: InputDecoration(
-                          labelText: 'Image URL (Optional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: AppColors.textSecondary.withOpacity(0.1),
                           ),
-                          prefixIcon: const Icon(Icons.image_outlined),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Place Image',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            if (_selectedImage != null) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  _selectedImage!,
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            ElevatedButton.icon(
+                              onPressed: _isLoading ? null : _pickImage,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.image_outlined,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                _selectedImage == null
+                                    ? 'Select Image'
+                                    : 'Change Image',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
