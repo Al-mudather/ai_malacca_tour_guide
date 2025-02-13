@@ -14,7 +14,7 @@ class ApiService {
         // 'http://10.0.2.2:5000', // Using 10.0.2.2 for Android emulator
         _dio = Dio() {
     _dio.options.baseUrl = this.baseUrl;
-    _dio.options.connectTimeout = const Duration(seconds: 5);
+    _dio.options.connectTimeout = const Duration(seconds: 10);
     _dio.options.receiveTimeout = const Duration(seconds: 3);
     _dio.options.headers = {
       'Content-Type': 'application/json',
